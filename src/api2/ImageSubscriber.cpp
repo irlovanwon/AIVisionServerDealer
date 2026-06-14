@@ -146,11 +146,21 @@ void ImageSubscriber::subscribe_thread_func(const std::string& channel,
         img->resolution = header.value("resolution", "");
         img->format = header.value("format", "Mono");
 
-        auto payload = std::make_shared<std::vector<uint8_t>>(
-            static_cast<uint8_t*>(zmq_msg_data(&payload_msg)),
-            static_cast<uint8_t*>(zmq_msg_data(&payload_msg)) + zmq_msg_size(&payload_msg));
-        img->payload = payload;
+        auto payload = std::make_shared<Payload>();
+        if (zmq_msg_size(&payload_msg) > 0) {
+            auto* heap_msg = new zmq_msg_t;
+            zmq_msg_init(heap_msg);
+            zmq_msg_move(heap_msg, &payload_msg);
+            payload->data = static_cast<const uint8_t*>(zmq_msg_data(heap_msg));
+            payload->size = zmq_msg_size(heap_msg);
+            payload->owner = std::shared_ptr<void>(heap_msg, [](void* p) {
+                auto* msg = static_cast<zmq_msg_t*>(p);
+                zmq_msg_close(msg);
+                delete msg;
+            });
+        }
         zmq_msg_close(&payload_msg);
+        img->payload = payload;
 
         if (callback_) callback_(img);
     }

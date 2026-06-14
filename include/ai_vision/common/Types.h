@@ -31,7 +31,14 @@ struct Timestamp {
     static Timestamp parse(const std::string& s);
 };
 
-using PayloadPtr = std::shared_ptr<std::vector<uint8_t>>;
+struct Payload {
+    const uint8_t* data = nullptr;
+    size_t size = 0;
+    std::shared_ptr<void> owner;
+
+    bool empty() const { return size == 0; }
+};
+using PayloadPtr = std::shared_ptr<Payload>;
 
 struct ImageData {
     Timestamp timestamp;

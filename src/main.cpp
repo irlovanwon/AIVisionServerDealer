@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         ai_vision::Logger::instance().debug("Main",
             "Image received: channel=" + img->channel +
             " part=" + img->part +
-            " size=" + std::to_string(img->payload ? img->payload->size() : 0));
+            " size=" + std::to_string(img->payload ? img->payload->size : 0));
         buffer->push(img);
     });
 

@@ -103,8 +103,8 @@ void CoreModule::pipeline_thread_func() {
             system(cmd.c_str());
             std::ofstream ofs(ref.uri, std::ios::binary);
             if (ofs.is_open()) {
-                ofs.write(reinterpret_cast<const char*>(img->payload->data()),
-                          img->payload->size());
+                ofs.write(reinterpret_cast<const char*>(img->payload->data),
+                          img->payload->size);
             }
         }
 
