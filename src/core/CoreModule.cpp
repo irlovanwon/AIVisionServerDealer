@@ -83,11 +83,8 @@ void CoreModule::pipeline_thread_func() {
         if (!img) continue;
 
         DetectionRequest req;
-        {
-            std::lock_guard<std::mutex> lock(mutex_);
-            req.transaction_id = generate_transaction_id();
-            req.dealer_id = config_.dealer_id;
-        }
+        req.transaction_id = generate_transaction_id();
+        req.dealer_id = config_.dealer_id;
         req.mode = "File";
         req.timestamp = img->timestamp.to_string();
 
