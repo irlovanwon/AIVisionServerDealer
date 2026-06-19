@@ -1,28 +1,13 @@
-# Object files
-*.o
-*.obj
-*.so
-*.a
-*.out
-
-# Build directories
+# Build artifacts
 build/
-build-*/
 
-# CMake generated
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-compile_commands.json
-
-# Temporary files
-*.tmp
+# Runtime artifacts
+*.pid
 *.log
-*.bak
-*.swp
 
-# Runtime
+# TLS certs (generated per-deployment)
 certs/
-status/
-.cache/
+
+# OS files
+.DS_Store
+*~
