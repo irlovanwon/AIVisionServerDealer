@@ -53,7 +53,9 @@ bool CoreModule::start() {
                 "Detection response received: " + resp.transaction_id +
                 " (" + std::to_string(resp.results.size()) + " results)");
             if (publisher_) {
-                publisher_->publish_result(resp.transaction_id, resp.dealer_id, resp.to_json());
+                auto j = resp.to_json();
+                j["Status"] = "1";
+                publisher_->publish_result(resp.transaction_id, resp.dealer_id, j);
             }
         });
     }
@@ -81,6 +83,27 @@ void CoreModule::pipeline_thread_func() {
 
         auto img = buffer_->pop(500);
         if (!img) continue;
+
+        if (!dealer_->is_client_connected()) {
+            auto now = std::chrono::steady_clock::now();
+            if (now - last_no_client_publish_ > std::chrono::seconds(5)) {
+                last_no_client_publish_ = now;
+                std::string txn = generate_transaction_id();
+                nlohmann::json status_result;
+                status_result["TransactionID"] = txn;
+                status_result["DealerID"] = config_.dealer_id;
+                status_result["Status"] = "0";
+                status_result["Reason"] = "No AI client connected";
+                status_result["Result"] = nlohmann::json::array();
+                status_result["TimestampReplied"] = Timestamp::now().to_string();
+                if (publisher_) {
+                    publisher_->publish_result(txn, config_.dealer_id, status_result);
+                }
+                Logger::instance().warn("CoreModule",
+                    "No AI client connected — skipping detection, status published: " + txn);
+            }
+            continue;
+        }
 
         DetectionRequest req;
         req.transaction_id = generate_transaction_id();

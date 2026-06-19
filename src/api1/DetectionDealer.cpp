@@ -39,6 +39,8 @@ bool DetectionDealer::connect(const Api1aConfig& config) {
 
     int linger = 0;
     zmq_setsockopt(zmq_socket_, ZMQ_LINGER, &linger, sizeof(linger));
+    int immediate = 1;
+    zmq_setsockopt(zmq_socket_, ZMQ_IMMEDIATE, &immediate, sizeof(immediate));
     int sndhwm = config.sndhwm;
     zmq_setsockopt(zmq_socket_, ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm));
     int rcvhwm = config.rcvhwm;
@@ -55,10 +57,15 @@ bool DetectionDealer::connect(const Api1aConfig& config) {
         return false;
     }
 
+    monitor_addr_ = "inproc://detection_dealer_monitor";
+    zmq_socket_monitor(zmq_socket_, monitor_addr_.c_str(),
+                       ZMQ_EVENT_CONNECTED | ZMQ_EVENT_DISCONNECTED);
+
     poll_timeout_ms_ = config.poll_timeout_ms;
     connected_.store(true);
     running_.store(true);
     poll_thread_ = std::thread([this]() { poll_thread_func(); });
+    monitor_thread_ = std::thread([this]() { monitor_thread_func(monitor_addr_); });
 
     Logger::instance().info("DetectionDealer",
         "DEALER connected to " + endpoint + " (identity: " + config.identity + ")");
@@ -70,6 +77,7 @@ void DetectionDealer::disconnect() {
     running_.store(false);
     connected_.store(false);
     if (poll_thread_.joinable()) poll_thread_.join();
+    if (monitor_thread_.joinable()) monitor_thread_.join();
     if (zmq_socket_) { zmq_close(zmq_socket_); zmq_socket_ = nullptr; }
     if (zmq_context_) { zmq_ctx_destroy(zmq_context_); zmq_context_ = nullptr; }
     Logger::instance().info("DetectionDealer", "Disconnected");
@@ -83,7 +91,7 @@ bool DetectionDealer::send_request(const DetectionRequest& request) {
     if (!connected_.load() || !zmq_socket_) return false;
 
     std::string json_str = request.to_json().dump();
-    int rc = zmq_send(zmq_socket_, json_str.data(), json_str.size(), 0);
+    int rc = zmq_send(zmq_socket_, json_str.data(), json_str.size(), ZMQ_DONTWAIT);
     if (rc < 0) {
         Logger::instance().error("DetectionDealer",
             "Send failed: " + std::string(zmq_strerror(zmq_errno())));
@@ -129,6 +137,53 @@ void DetectionDealer::poll_thread_func() {
         }
     }
     Logger::instance().info("DetectionDealer", "Poll thread stopped");
+}
+
+void DetectionDealer::monitor_thread_func(const std::string& monitor_addr) {
+    void* monitor_sock = zmq_socket(zmq_context_, ZMQ_PAIR);
+    if (!monitor_sock) {
+        Logger::instance().error("DetectionDealer", "Failed to create monitor socket");
+        return;
+    }
+    if (zmq_connect(monitor_sock, monitor_addr.c_str()) != 0) {
+        Logger::instance().error("DetectionDealer", "Failed to connect monitor socket");
+        zmq_close(monitor_sock);
+        return;
+    }
+
+    Logger::instance().info("DetectionDealer", "Monitor thread started");
+    while (running_.load()) {
+        zmq_msg_t msg1;
+        zmq_msg_init(&msg1);
+        int rc = zmq_msg_recv(&msg1, monitor_sock, 0);
+        if (rc < 0) {
+            zmq_msg_close(&msg1);
+            if (!running_.load()) break;
+            continue;
+        }
+
+        uint16_t event = 0;
+        if (zmq_msg_size(&msg1) >= 2) {
+            std::memcpy(&event, zmq_msg_data(&msg1), sizeof(uint16_t));
+        }
+        zmq_msg_close(&msg1);
+
+        zmq_msg_t msg2;
+        zmq_msg_init(&msg2);
+        zmq_msg_recv(&msg2, monitor_sock, 0);
+        zmq_msg_close(&msg2);
+
+        if (event == ZMQ_EVENT_CONNECTED) {
+            client_connected_.store(true);
+            Logger::instance().info("DetectionDealer", "AI client connected");
+        } else if (event == ZMQ_EVENT_DISCONNECTED) {
+            client_connected_.store(false);
+            Logger::instance().warn("DetectionDealer", "AI client disconnected");
+        }
+    }
+
+    zmq_close(monitor_sock);
+    Logger::instance().info("DetectionDealer", "Monitor thread stopped");
 }
 
 } // namespace ai_vision

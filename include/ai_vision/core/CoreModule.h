@@ -49,6 +49,7 @@ private:
     std::thread pipeline_thread_;
     std::mutex mutex_;
     uint64_t transaction_counter_ = 0;
+    std::chrono::steady_clock::time_point last_no_client_publish_;
 };
 
 } // namespace ai_vision

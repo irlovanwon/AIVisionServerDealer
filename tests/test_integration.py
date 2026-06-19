@@ -8,7 +8,10 @@ Simulates all external components:
   - Result Subscriber (ZMQ SUB) → receives published results from API2b
   - Admin Client (HTTPS) → sends SetParameter command to API1b
 
-Full pipeline: Data Server → [Dealer] → AI Client → [Dealer] → Result Subscriber
+Test phases:
+  1. No-client: no AI client → expect Status=0 status result
+  2. Normal: with AI client → expect Status=1 detection result
+  3. Admin: HTTPS SetParameter
 """
 
 import zmq
@@ -102,15 +105,21 @@ def result_subscriber(ctx, ready_event, stop_event):
         if sock in events:
             header = json.loads(sock.recv_string())
             result = json.loads(sock.recv_string())
-            print("[Result Sub] Received published result:")
-            print("             transaction_id:", header.get("transaction_id"))
-            print("             dealer_id:", header.get("dealer_id"))
+            status = result.get("Status", "?")
+            reason = result.get("Reason", "")
             detections = result.get("Result", [])
-            print("             detections:", len(detections))
-            for det in detections:
-                print("               -", det.get("LabelID"),
-                      "conf=" + det.get("Confidence", ""),
-                      "ocr=" + det.get("OCR", "") if det.get("OCR") else "")
+            if reason:
+                print(f"[Result Sub] Received status result:")
+                print(f"             Status: {status}, Reason: {reason}")
+            else:
+                print("[Result Sub] Received published result:")
+                print("             transaction_id:", header.get("transaction_id"))
+                print("             dealer_id:", header.get("dealer_id"))
+                print("             detections:", len(detections))
+                for det in detections:
+                    print("               -", det.get("LabelID"),
+                          "conf=" + det.get("Confidence", ""),
+                          "ocr=" + det.get("OCR", "") if det.get("OCR") else "")
             with results_lock:
                 results_received.append(result)
 
@@ -118,8 +127,8 @@ def result_subscriber(ctx, ready_event, stop_event):
     print("[Result Sub] Stopped")
 
 
-def mock_data_server(ctx):
-    """Mock data server: PUB bind, publish a test image."""
+def publish_test_image(ctx):
+    """Publish a single test image via ZMQ PUB."""
     sock = ctx.socket(zmq.PUB)
     sock.setsockopt(zmq.LINGER, 0)
     sock.bind(IMAGE_ENDPOINT)
@@ -190,25 +199,52 @@ def main():
 
     ctx = zmq.Context()
 
-    ai_ready = threading.Event()
     sub_ready = threading.Event()
     stop_event = threading.Event()
 
-    print("--- Starting mock AI client ---")
-    ai_thread = threading.Thread(target=mock_ai_client, args=(ctx, ai_ready, stop_event))
-    ai_thread.start()
-    ai_ready.wait(timeout=3)
-
+    # Start result subscriber first
     print("--- Starting result subscriber ---")
     sub_thread = threading.Thread(target=result_subscriber, args=(ctx, sub_ready, stop_event))
     sub_thread.start()
     sub_ready.wait(timeout=3)
+    time.sleep(0.5)
 
-    time.sleep(1.0)
+    # --- Phase 1: No AI client connected ---
+    print()
+    print("--- Phase 1: No AI client connected ---")
+    print("--- Publishing test image (no AI client) ---")
+    publish_test_image(ctx)
+
+    print("--- Waiting for no-client status result (max 10s) ---")
+    deadline = time.time() + 10
+    no_client_result = None
+    while time.time() < deadline:
+        with results_lock:
+            if results_received:
+                no_client_result = results_received[-1]
+                if no_client_result.get("Status") == "0":
+                    break
+        time.sleep(0.2)
+
+    # Clear results for phase 2
+    with results_lock:
+        results_received.clear()
+
+    # --- Phase 2: Start AI client, test normal pipeline ---
+    print()
+    print("--- Phase 2: Starting mock AI client ---")
+    ai_ready = threading.Event()
+    ai_thread = threading.Thread(target=mock_ai_client, args=(ctx, ai_ready, stop_event))
+    ai_thread.start()
+    ai_ready.wait(timeout=3)
+
+    # Wait for ZMQ monitor to detect connection
+    print("--- Waiting 2s for ZMQ monitor connection detection ---")
+    time.sleep(2.0)
 
     print()
-    print("--- Publishing test image ---")
-    mock_data_server(ctx)
+    print("--- Publishing test image (with AI client) ---")
+    publish_test_image(ctx)
 
     print()
     print("--- Waiting for pipeline result (max 5s) ---")
@@ -219,8 +255,9 @@ def main():
                 break
         time.sleep(0.2)
 
+    # --- Phase 3: Admin test ---
     print()
-    print("--- Testing admin HTTPS endpoint ---")
+    print("--- Phase 3: Testing admin HTTPS endpoint ---")
     admin_ok = test_admin()
 
     stop_event.set()
@@ -229,13 +266,14 @@ def main():
 
     ctx.term()
 
+    # --- Evaluate results ---
     print()
     print("=" * 60)
     print("TEST RESULTS")
     print("=" * 60)
 
     with results_lock:
-        pipeline_ok = len(results_received) > 0
+        pipeline_result = results_received[0] if results_received else None
 
     all_pass = True
 
@@ -246,15 +284,23 @@ def main():
             all_pass = False
         print(f"  [{status}] {name}")
 
-    check("Pipeline: Data Server → Dealer → AI Client → Dealer → Result Sub", pipeline_ok)
-    check("Admin: HTTPS SetParameter command", admin_ok)
+    # Phase 1: No-client
+    check("No-client: status result received", no_client_result is not None)
+    if no_client_result:
+        check("No-client: Status=0", no_client_result.get("Status") == "0")
+        check("No-client: Reason present", bool(no_client_result.get("Reason")))
 
-    if results_received:
-        result = results_received[0]
-        check("Result has TransactionID", bool(result.get("TransactionID")))
-        check("Result has detections", len(result.get("Result", [])) > 0)
-        check("Detection has LabelID", result["Result"][0].get("LabelID") == "OCR")
-        check("OCR text correct", result["Result"][0].get("OCR") == "TEST123")
+    # Phase 2: Normal pipeline
+    check("Pipeline: Data Server -> Dealer -> AI Client -> Result Sub", pipeline_result is not None)
+    if pipeline_result:
+        check("Pipeline: Status=1", pipeline_result.get("Status") == "1")
+        check("Result has TransactionID", bool(pipeline_result.get("TransactionID")))
+        check("Result has detections", len(pipeline_result.get("Result", [])) > 0)
+        check("Detection has LabelID", pipeline_result["Result"][0].get("LabelID") == "OCR")
+        check("OCR text correct", pipeline_result["Result"][0].get("OCR") == "TEST123")
+
+    # Phase 3: Admin
+    check("Admin: HTTPS SetParameter command", admin_ok)
 
     print()
     if all_pass:

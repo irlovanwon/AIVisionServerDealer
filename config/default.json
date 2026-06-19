@@ -1,6 +1,5 @@
 {
     "dealer_id": "Edge001",
-
     "api1a": {
         "transport": "ipc",
         "endpoint_local": "ipc:///tmp/ai_vision_dealer_detection",
@@ -10,7 +9,6 @@
         "rcvhwm": 10,
         "poll_timeout_ms": 100
     },
-
     "api1b": {
         "host": "0.0.0.0",
         "port": 8445,
@@ -18,24 +16,21 @@
         "key_path": "certs/server.key",
         "worker_threads": 4
     },
-
     "api2a": {
         "transport": "ipc",
         "channels": {
-            "image": "ipc:///tmp/data_server_image",
-            "stereo_image": "ipc:///tmp/data_server_stereo_image"
+            "image": "ipc:///tmp/sc_pub_stereo_image",
+            "stereo_image": "ipc:///tmp/sc_pub_stereo_image"
         },
         "default_channel": "image",
-        "stereo_mode": false,
+        "stereo_mode": true,
         "rcvhwm": 10
     },
-
     "api2b": {
         "transport": "ipc",
         "endpoint_local": "ipc:///tmp/ai_vision_dealer_result",
         "endpoint_remote": "tcp://*:5556",
         "sndhwm": 10
     },
-
     "log_level": "info"
 }
