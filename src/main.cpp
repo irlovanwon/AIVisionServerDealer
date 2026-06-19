@@ -27,7 +27,6 @@ static void signal_handler(int) {
 int main(int argc, char* argv[]) {
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
-    signal(SIGPIPE, SIG_IGN);
 
     std::string config_path = "config/default.json";
     for (int i = 1; i < argc; ++i) {
@@ -104,6 +103,7 @@ int main(int argc, char* argv[]) {
 
     ai_vision::AdminServer admin_server(config.api1b);
     admin_server.set_handler(admin_handler);
+    admin_server.set_dealer_id(config.dealer_id);
     admin_server.start();
 
     ai_vision::Logger::instance().info("Main", "AIVisionServerDealer ready. Press Ctrl+C to stop.");

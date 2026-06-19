@@ -212,7 +212,7 @@ struct AdminServer::Impl {
 
         nlohmann::json resp_json;
         resp_json["TransactionID"] = transaction_id;
-        resp_json["DealerID"] = config_dealer_id;
+        resp_json["DealerID"] = dealer_id;
         resp_json["Status"] = (resp.code == ResponseCode::Success) ? "1" : "0";
         resp_json["Parameter"] = result;
         resp_json["TimestampReceived"] = timestamp;
@@ -221,7 +221,7 @@ struct AdminServer::Impl {
         return resp_json.dump();
     }
 
-    std::string config_dealer_id = "AIModule001";
+    std::string dealer_id = "Edge001";
 
     static std::string make_error_response(const std::string& msg) {
         nlohmann::json j;
@@ -264,6 +264,10 @@ AdminServer::~AdminServer() {
 
 void AdminServer::set_handler(AdminHandler handler) {
     impl_->handler = handler;
+}
+
+void AdminServer::set_dealer_id(const std::string& id) {
+    impl_->dealer_id = id;
 }
 
 void AdminServer::start() {

@@ -26,6 +26,7 @@ public:
     ~AdminServer();
 
     void set_handler(AdminHandler handler);
+    void set_dealer_id(const std::string& id);
     void start();
     void stop();
 
