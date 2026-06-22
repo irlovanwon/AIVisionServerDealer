@@ -28,7 +28,7 @@ struct Api1aConfig {
 
 struct Api1bConfig {
     std::string host = "0.0.0.0";
-    int port = 8443;
+    int port = 8445;
     std::string cert_path = "certs/server.crt";
     std::string key_path = "certs/server.key";
     int worker_threads = 4;
@@ -59,6 +59,7 @@ struct Api2bConfig {
 };
 
 struct Config {
+    std::string version = "1.0";
     std::string dealer_id = "Edge001";
     Api1aConfig api1a;
     Api1bConfig api1b;

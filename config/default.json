@@ -1,4 +1,5 @@
 {
+    "version": "1.0",
     "dealer_id": "Edge001",
     "api1a": {
         "transport": "ipc",

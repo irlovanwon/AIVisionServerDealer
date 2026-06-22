@@ -13,6 +13,7 @@ namespace ai_vision {
 
 Config ConfigManager::from_json(const nlohmann::json& j) {
     Config config;
+    config.version = j.value("version", "1.0");
     config.dealer_id = j.value("dealer_id", "Edge001");
     config.log_level = j.value("log_level", "info");
 
@@ -58,6 +59,7 @@ Config ConfigManager::from_json(const nlohmann::json& j) {
 
 nlohmann::json ConfigManager::to_json(const Config& config) {
     nlohmann::json j;
+    j["version"] = config.version;
     j["dealer_id"] = config.dealer_id;
     j["log_level"] = config.log_level;
 
