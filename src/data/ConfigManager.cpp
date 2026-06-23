@@ -50,6 +50,7 @@ Config ConfigManager::from_json(const nlohmann::json& j) {
         }
         config.api2a.default_channel = a.value("default_channel", "image");
         config.api2a.rcvhwm = a.value("rcvhwm", 10);
+        config.api2a.result_endpoint = a.value("result_endpoint", "ipc:///tmp/ai_vision_dealer_result");
     }
 
     if (j.contains("api2b")) {
@@ -95,7 +96,8 @@ nlohmann::json ConfigManager::to_json(const Config& config) {
         {"transport", config.api2a.transport},
         {"channels", config.api2a.channels},
         {"default_channel", config.api2a.default_channel},
-        {"rcvhwm", config.api2a.rcvhwm}
+        {"rcvhwm", config.api2a.rcvhwm},
+        {"result_endpoint", config.api2a.result_endpoint}
     };
 
     j["api2b"] = {

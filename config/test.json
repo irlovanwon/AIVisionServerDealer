@@ -26,7 +26,8 @@
             "image": "ipc:///tmp/data_server_image"
         },
         "default_channel": "image",
-        "rcvhwm": 10
+        "rcvhwm": 10,
+        "result_endpoint": "ipc:///tmp/ai_vision_dealer_result"
     },
     "api2b": {
         "host": "0.0.0.0",

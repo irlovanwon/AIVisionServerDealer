@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
         ai_vision::Logger::instance().error("Main", "Failed to connect DetectionDealer");
     }
 
-    publisher->bind("ipc:///tmp/ai_vision_dealer_result");
+    publisher->bind(config.api2a.result_endpoint);
 
     core->set_config(config);
     core->set_image_buffer(buffer);

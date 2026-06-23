@@ -39,6 +39,7 @@ struct Api2aConfig {
     nlohmann::json channels;
     std::string default_channel = "image";
     int rcvhwm = 10;
+    std::string result_endpoint = "ipc:///tmp/ai_vision_dealer_result";
 
     std::string channel_endpoint(const std::string& name) const {
         if (channels.contains(name)) return channels[name].get<std::string>();
