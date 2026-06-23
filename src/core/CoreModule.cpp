@@ -1,7 +1,8 @@
 /*
  * Copyright(c) 2026-2030, VIATECH & UZONE All rights reserved
  * Des: CoreModule — orchestrates ingest pipeline, detection, result forwarding
- * Date: 20260614
+ *      Raw data mode (Stream), processing_paused_ flow control
+ * Date: 20260623
  * Modification:
  */
 #include "ai_vision/core/CoreModule.h"
@@ -9,8 +10,6 @@
 #include "ai_vision/api1/DetectionDealer.h"
 #include "ai_vision/api2/ResultPublisher.h"
 #include "ai_vision/common/Logger.h"
-#include <fstream>
-#include <cstdlib>
 
 namespace ai_vision {
 
@@ -43,24 +42,42 @@ std::string CoreModule::generate_transaction_id() {
     return Timestamp::now().to_string() + "-" + std::to_string(transaction_counter_);
 }
 
+void CoreModule::enqueue_result(const std::string& txn, const std::string& dealer_id,
+                                 const nlohmann::json& json) {
+    {
+        std::lock_guard<std::mutex> lk(result_mutex_);
+        result_queue_.push({txn, dealer_id, json});
+    }
+    result_cv_.notify_one();
+}
+
+void CoreModule::ack_results(size_t count) {
+    size_t current = pending_results_.load();
+    size_t new_val = (current >= count) ? current - count : 0;
+    pending_results_.store(new_val);
+    if (new_val < max_pending_results_) {
+        processing_paused_.store(false);
+    }
+}
+
 bool CoreModule::start() {
     if (running_.load()) return true;
     running_.store(true);
 
     if (dealer_) {
         dealer_->set_response_callback([this](const DetectionResponse& resp) {
+            pending_results_.fetch_sub(1, std::memory_order_relaxed);
             Logger::instance().info("CoreModule",
                 "Detection response received: " + resp.transaction_id +
                 " (" + std::to_string(resp.results.size()) + " results)");
-            if (publisher_) {
-                auto j = resp.to_json();
-                j["Status"] = "1";
-                publisher_->publish_result(resp.transaction_id, resp.dealer_id, j);
-            }
+            auto j = resp.to_json();
+            j["Status"] = "1";
+            enqueue_result(resp.transaction_id, resp.dealer_id, j);
         });
     }
 
     pipeline_thread_ = std::thread([this]() { pipeline_thread_func(); });
+    result_thread_ = std::thread([this]() { result_thread_func(); });
 
     Logger::instance().info("CoreModule", "Started");
     return true;
@@ -69,7 +86,9 @@ bool CoreModule::start() {
 void CoreModule::stop() {
     if (!running_.load()) return;
     running_.store(false);
+    result_cv_.notify_all();
     if (pipeline_thread_.joinable()) pipeline_thread_.join();
+    if (result_thread_.joinable()) result_thread_.join();
     Logger::instance().info("CoreModule", "Stopped");
 }
 
@@ -78,6 +97,11 @@ void CoreModule::pipeline_thread_func() {
     while (running_.load()) {
         if (!buffer_ || !dealer_) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+
+        if (processing_paused_.load()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
             continue;
         }
 
@@ -96,9 +120,7 @@ void CoreModule::pipeline_thread_func() {
                 status_result["Reason"] = "No AI client connected";
                 status_result["Result"] = nlohmann::json::array();
                 status_result["TimestampReplied"] = Timestamp::now().to_string();
-                if (publisher_) {
-                    publisher_->publish_result(txn, config_.dealer_id, status_result);
-                }
+                enqueue_result(txn, config_.dealer_id, status_result);
                 Logger::instance().warn("CoreModule",
                     "No AI client connected — skipping detection, status published: " + txn);
             }
@@ -108,39 +130,56 @@ void CoreModule::pipeline_thread_func() {
         DetectionRequest req;
         req.transaction_id = generate_transaction_id();
         req.dealer_id = config_.dealer_id;
-        req.mode = "File";
+        req.mode = "Stream";
         req.timestamp = img->timestamp.to_string();
 
         ImageRef ref;
-        ref.uri = "/tmp/ai_vision_buffer/" + req.transaction_id + "_" +
-                  (img->part.empty() ? "image" : img->part) + ".jpg";
         ref.file_name = "IMG-" + req.transaction_id +
                         (img->part.empty() ? "" : "-" + img->part) + ".jpg";
         ref.resolution = img->resolution;
         ref.format = img->format;
         req.data.push_back(ref);
 
-        if (img->payload && !img->payload->empty()) {
-            std::string dir = "/tmp/ai_vision_buffer";
-            std::string cmd = "mkdir -p " + dir;
-            system(cmd.c_str());
-            std::ofstream ofs(ref.uri, std::ios::binary);
-            if (ofs.is_open()) {
-                ofs.write(reinterpret_cast<const char*>(img->payload->data),
-                          img->payload->size);
-            }
-        }
-
         Logger::instance().debug("CoreModule",
             "Sending detection request: " + req.transaction_id +
             " (" + std::to_string(req.data.size()) + " images)");
 
-        if (!dealer_->send_request(req)) {
+        if (img->payload && !img->payload->empty()) {
+            dealer_->send_request_with_data(req, img->payload);
+        } else {
+            dealer_->send_request(req);
+        }
+
+        pending_results_.fetch_add(1, std::memory_order_relaxed);
+        if (pending_results_.load() >= max_pending_results_) {
+            processing_paused_.store(true);
             Logger::instance().warn("CoreModule",
-                "Failed to send detection request: " + req.transaction_id);
+                "Processing paused — pending results at limit (" +
+                std::to_string(pending_results_.load()) + ")");
         }
     }
     Logger::instance().info("CoreModule", "Pipeline thread stopped");
+}
+
+void CoreModule::result_thread_func() {
+    Logger::instance().info("CoreModule", "Result thread started");
+    while (running_.load()) {
+        ResultEntry entry;
+        {
+            std::unique_lock<std::mutex> lk(result_mutex_);
+            result_cv_.wait_for(lk, std::chrono::milliseconds(500), [&] {
+                return !result_queue_.empty() || !running_.load();
+            });
+            if (!running_.load() && result_queue_.empty()) break;
+            if (result_queue_.empty()) continue;
+            entry = std::move(result_queue_.front());
+            result_queue_.pop();
+        }
+        if (publisher_) {
+            publisher_->publish_result(entry.transaction_id, entry.dealer_id, entry.result_json);
+        }
+    }
+    Logger::instance().info("CoreModule", "Result thread stopped");
 }
 
 } // namespace ai_vision

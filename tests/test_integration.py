@@ -47,12 +47,15 @@ def mock_ai_client(ctx, ready_event, stop_event):
     while not stop_event.is_set():
         events = dict(poller.poll(500))
         if sock in events:
-            msg = sock.recv_json()
+            frames = sock.recv_multipart()
+            msg = json.loads(frames[0].decode())
+            binary_size = len(frames[1]) if len(frames) > 1 else 0
             print("[AI Client] Received detection request:")
             print("             TransactionID:", msg.get("TransactionID"))
             print("             DealerID:", msg.get("DealerID"))
             print("             Mode:", msg.get("Mode"))
             print("             Images:", len(msg.get("Data", [])))
+            print("             Binary payload:", binary_size, "bytes")
             for d in msg.get("Data", []):
                 print("               -", d.get("FileName"), d.get("Resolution"), d.get("Format"))
 

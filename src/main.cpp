@@ -83,8 +83,8 @@ int main(int argc, char* argv[]) {
     }
 
     ai_vision::AdminServer::AdminHandler admin_handler =
-        [&config](const std::string& action,
-                  const std::vector<ai_vision::AdminParameter>& params) -> ai_vision::Response {
+        [&core](const std::string& action,
+                const std::vector<ai_vision::AdminParameter>& params) -> ai_vision::Response {
         ai_vision::Logger::instance().info("Admin",
             "Action: " + action + " (" + std::to_string(params.size()) + " params)");
         if (action == "SetParameter") {
@@ -96,7 +96,22 @@ int main(int argc, char* argv[]) {
         } else if (action == "GetParameter") {
             return ai_vision::make_response(ai_vision::ResponseCode::Success, "Parameters retrieved");
         } else if (action == "CheckStatus") {
-            return ai_vision::make_response(ai_vision::ResponseCode::Success, "OK");
+            return ai_vision::make_response(ai_vision::ResponseCode::Success,
+                core->is_paused() ? "Paused" : "OK");
+        } else if (action == "Pause") {
+            core->set_paused(true);
+            return ai_vision::make_response(ai_vision::ResponseCode::Success, "Processing paused");
+        } else if (action == "Resume") {
+            core->set_paused(false);
+            return ai_vision::make_response(ai_vision::ResponseCode::Success, "Processing resumed");
+        } else if (action == "AckResult") {
+            size_t count = 1;
+            for (const auto& p : params) {
+                if (p.id == "Count" && !p.value.empty()) count = std::stoul(p.value);
+            }
+            core->ack_results(count);
+            return ai_vision::make_response(ai_vision::ResponseCode::Success,
+                "Acknowledged " + std::to_string(count) + " results");
         }
         return ai_vision::make_response(ai_vision::ResponseCode::Error, "Unknown action: " + action);
     };

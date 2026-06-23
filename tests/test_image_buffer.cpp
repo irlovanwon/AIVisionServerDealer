@@ -1,7 +1,7 @@
 /*
  * Copyright(c) 2026-2030, VIATECH & UZONE All rights reserved
- * Des: Unit tests for ImageBuffer
- * Date: 20260614
+ * Des: Unit tests for ImageBuffer (lock-free SPSC, drop-newest)
+ * Date: 20260623
  * Modification:
  */
 #include "ai_vision/core/ImageBuffer.h"
@@ -22,7 +22,7 @@ TEST(ImageBufferTest, PushPopBasic) {
     EXPECT_EQ(result->resolution, "1920,1080");
 }
 
-TEST(ImageBufferTest, DropOldestWhenFull) {
+TEST(ImageBufferTest, DropNewestWhenFull) {
     ImageBuffer buffer(3);
     for (int i = 0; i < 5; ++i) {
         auto img = std::make_shared<ImageData>();
@@ -30,10 +30,11 @@ TEST(ImageBufferTest, DropOldestWhenFull) {
         buffer.push(img);
     }
     EXPECT_EQ(buffer.size(), 3u);
+    EXPECT_EQ(buffer.dropped(), 2u);
 
     auto first = buffer.pop(100);
     ASSERT_NE(first, nullptr);
-    EXPECT_EQ(first->pair_id, 2u);
+    EXPECT_EQ(first->pair_id, 0u);
 }
 
 TEST(ImageBufferTest, PopTimeoutReturnsNull) {

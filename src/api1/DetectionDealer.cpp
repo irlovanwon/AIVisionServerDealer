@@ -1,7 +1,8 @@
 /*
  * Copyright(c) 2026-2030, VIATECH & UZONE All rights reserved
  * Des: DetectionDealer — API1a ZMQ DEALER/DEALER for AI detection
- * Date: 20260614
+ *      Zero-copy send (zmq_msg_init_data), raw binary data mode
+ * Date: 20260623
  * Modification:
  */
 #include "ai_vision/api1/DetectionDealer.h"
@@ -90,11 +91,49 @@ void DetectionDealer::set_response_callback(ResponseCallback cb) {
 bool DetectionDealer::send_request(const DetectionRequest& request) {
     if (!connected_.load() || !zmq_socket_) return false;
 
-    std::string json_str = request.to_json().dump();
-    int rc = zmq_send(zmq_socket_, json_str.data(), json_str.size(), ZMQ_DONTWAIT);
+    auto* str = new std::string(request.to_json().dump());
+    zmq_msg_t msg;
+    zmq_msg_init_data(&msg, str->data(), str->size(),
+        [](void*, void* hint) { delete static_cast<std::string*>(hint); }, str);
+
+    int rc = zmq_msg_send(&msg, zmq_socket_, ZMQ_DONTWAIT);
     if (rc < 0) {
+        delete str;
         Logger::instance().error("DetectionDealer",
             "Send failed: " + std::string(zmq_strerror(zmq_errno())));
+        return false;
+    }
+    return true;
+}
+
+bool DetectionDealer::send_request_with_data(const DetectionRequest& request,
+                                              const PayloadPtr& payload) {
+    if (!connected_.load() || !zmq_socket_) return false;
+    if (!payload || payload->empty()) return send_request(request);
+
+    auto* json_str = new std::string(request.to_json().dump());
+    zmq_msg_t msg1;
+    zmq_msg_init_data(&msg1, json_str->data(), json_str->size(),
+        [](void*, void* hint) { delete static_cast<std::string*>(hint); }, json_str);
+
+    int rc = zmq_msg_send(&msg1, zmq_socket_, ZMQ_SNDMORE | ZMQ_DONTWAIT);
+    if (rc < 0) {
+        delete json_str;
+        Logger::instance().error("DetectionDealer",
+            "Send metadata failed: " + std::string(zmq_strerror(zmq_errno())));
+        return false;
+    }
+
+    auto* payload_hint = new PayloadPtr(payload);
+    zmq_msg_t msg2;
+    zmq_msg_init_data(&msg2, const_cast<uint8_t*>(payload->data), payload->size,
+        [](void*, void* hint) { delete static_cast<PayloadPtr*>(hint); }, payload_hint);
+
+    rc = zmq_msg_send(&msg2, zmq_socket_, ZMQ_DONTWAIT);
+    if (rc < 0) {
+        delete payload_hint;
+        Logger::instance().error("DetectionDealer",
+            "Send payload failed: " + std::string(zmq_strerror(zmq_errno())));
         return false;
     }
     return true;

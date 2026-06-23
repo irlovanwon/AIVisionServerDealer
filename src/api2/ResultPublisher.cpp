@@ -74,12 +74,26 @@ void ResultPublisher::publish_result(const std::string& transaction_id,
     header["transaction_id"] = transaction_id;
     header["dealer_id"] = dealer_id;
 
-    std::string header_str = header.dump();
-    std::string result_str = result_json.dump();
+    auto* hdr_str = new std::string(header.dump());
+    zmq_msg_t msg1;
+    zmq_msg_init_data(&msg1, hdr_str->data(), hdr_str->size(),
+        [](void*, void* hint) { delete static_cast<std::string*>(hint); }, hdr_str);
 
-    int rc = zmq_send(zmq_socket_, header_str.data(), header_str.size(), ZMQ_SNDMORE);
-    if (rc < 0) return;
-    zmq_send(zmq_socket_, result_str.data(), result_str.size(), 0);
+    int rc = zmq_msg_send(&msg1, zmq_socket_, ZMQ_SNDMORE | ZMQ_DONTWAIT);
+    if (rc < 0) {
+        delete hdr_str;
+        return;
+    }
+
+    auto* res_str = new std::string(result_json.dump());
+    zmq_msg_t msg2;
+    zmq_msg_init_data(&msg2, res_str->data(), res_str->size(),
+        [](void*, void* hint) { delete static_cast<std::string*>(hint); }, res_str);
+
+    rc = zmq_msg_send(&msg2, zmq_socket_, ZMQ_DONTWAIT);
+    if (rc < 0) {
+        delete res_str;
+    }
 }
 
 } // namespace ai_vision

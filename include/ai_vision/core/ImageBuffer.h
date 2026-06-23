@@ -1,16 +1,16 @@
 /*
  * Copyright(c) 2026-2030, VIATECH & UZONE All rights reserved
- * Des: Thread-safe image buffer — latest-frame-wins with shared_ptr
- * Date: 20260614
+ * Des: Lock-free SPSC ring buffer — drop-newest policy, condition_variable for blocking pop
+ * Date: 20260623
  * Modification:
  */
 #pragma once
 
 #include "ai_vision/common/Types.h"
+#include <atomic>
 #include <mutex>
 #include <condition_variable>
-#include <deque>
-#include <atomic>
+#include <vector>
 
 namespace ai_vision {
 
@@ -18,16 +18,21 @@ class ImageBuffer {
 public:
     explicit ImageBuffer(size_t max_size = 20);
 
-    void push(std::shared_ptr<ImageData> img);
+    bool push(std::shared_ptr<ImageData> img);
     std::shared_ptr<ImageData> pop(int timeout_ms);
     std::shared_ptr<ImageData> try_pop();
     size_t size();
+    size_t dropped() const { return dropped_.load(std::memory_order_relaxed); }
 
 private:
-    std::mutex mutex_;
+    size_t capacity_;
+    std::vector<std::shared_ptr<ImageData>> buffer_;
+
+    alignas(64) std::atomic<size_t> write_pos_{0};
+    alignas(64) std::atomic<size_t> read_pos_{0};
+
+    std::mutex cv_mutex_;
     std::condition_variable cv_;
-    std::deque<std::shared_ptr<ImageData>> queue_;
-    size_t max_size_;
     std::atomic<size_t> dropped_{0};
 };
 

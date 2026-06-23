@@ -28,6 +28,7 @@ public:
     void set_response_callback(ResponseCallback cb);
 
     bool send_request(const DetectionRequest& request);
+    bool send_request_with_data(const DetectionRequest& request, const PayloadPtr& payload);
     bool is_client_connected() const { return client_connected_.load(); }
 
 private:
