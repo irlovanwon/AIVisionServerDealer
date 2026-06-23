@@ -18,11 +18,79 @@
 #include <memory>
 #include <iostream>
 #include <sys/stat.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <fstream>
+#include <sstream>
 
 static std::atomic<bool> g_running{true};
 
 static void signal_handler(int) {
     g_running.store(false);
+}
+
+static void http_file_server_thread(int port, const std::string& root_dir) {
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd < 0) return;
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    struct sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(port);
+
+    if (bind(server_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        ai_vision::Logger::instance().error("HttpFileServer",
+            "Failed to bind port " + std::to_string(port));
+        close(server_fd);
+        return;
+    }
+    listen(server_fd, 5);
+    ai_vision::Logger::instance().info("HttpFileServer",
+        "Listening on 0.0.0.0:" + std::to_string(port) + " serving " + root_dir);
+
+    struct timeval tv{1, 0};
+    setsockopt(server_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
+    while (g_running.load()) {
+        int client_fd = accept(server_fd, nullptr, nullptr);
+        if (client_fd < 0) continue;
+
+        char buf[4096];
+        int n = read(client_fd, buf, sizeof(buf) - 1);
+        if (n <= 0) { close(client_fd); continue; }
+        buf[n] = '\0';
+
+        std::string request(buf);
+        size_t p1 = request.find("GET ");
+        size_t p2 = request.find(" HTTP/");
+        if (p1 == std::string::npos || p2 == std::string::npos) {
+            close(client_fd); continue;
+        }
+        std::string req_path = request.substr(p1 + 5, p2 - p1 - 5);
+        if (!req_path.empty() && req_path[0] != '/') req_path = "/" + req_path;
+
+        std::string full_path = root_dir + req_path;
+        std::ifstream ifs(full_path, std::ios::binary);
+        if (!ifs.is_open()) {
+            std::string resp = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
+            write(client_fd, resp.c_str(), resp.size());
+            close(client_fd);
+            continue;
+        }
+        std::string content((std::istreambuf_iterator<char>(ifs)),
+                             std::istreambuf_iterator<char>());
+        std::string header = "HTTP/1.1 200 OK\r\n"
+            "Content-Type: image/jpeg\r\n"
+            "Content-Length: " + std::to_string(content.size()) + "\r\n"
+            "Connection: close\r\n\r\n";
+        write(client_fd, header.c_str(), header.size());
+        write(client_fd, content.data(), content.size());
+        close(client_fd);
+    }
+    close(server_fd);
 }
 
 static auto make_admin_handler(std::shared_ptr<ai_vision::CoreModule> core,
@@ -119,6 +187,7 @@ int main(int argc, char* argv[]) {
     core->set_detection_dealer(dealer);
     core->set_result_publisher(publisher);
     core->set_image_save_path("/tmp/ai_vision_images");
+    core->set_http_base_url("http://127.0.0.1:" + std::to_string(config.http_file_server_port));
 
     if (!core->start()) {
         ai_vision::Logger::instance().error("Main", "Failed to start CoreModule");
@@ -137,6 +206,10 @@ int main(int argc, char* argv[]) {
     api2b_server.set_dealer_id(config.dealer_id);
     api2b_server.start();
 
+    std::thread http_fs_thread([&config]() {
+        http_file_server_thread(config.http_file_server_port, "/tmp/ai_vision_images");
+    });
+
     ai_vision::Logger::instance().info("Main",
         "AIVisionServerDealer ready (API1b: " + std::to_string(config.api1b.port) +
         ", API2b: " + std::to_string(config.api2b.port) + "). Press Ctrl+C to stop.");
@@ -146,6 +219,7 @@ int main(int argc, char* argv[]) {
     }
 
     ai_vision::Logger::instance().info("Main", "Shutting down...");
+    if (http_fs_thread.joinable()) http_fs_thread.join();
     api2b_server.stop();
     admin_server.stop();
     core->stop();

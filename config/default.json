@@ -3,6 +3,7 @@
     "dealer_id": "Edge001",
     "mode": "Binary",
     "jpeg_quality": 85,
+    "http_file_server_port": 8089,
     "api1a": {
         "transport": "ipc",
         "endpoint_local": "ipc:///tmp/ai_vision_dealer_detection",

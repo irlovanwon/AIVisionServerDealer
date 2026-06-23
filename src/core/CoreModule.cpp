@@ -157,12 +157,16 @@ void CoreModule::pipeline_thread_func() {
         if (config_.mode == "Binary" && img->payload && !img->payload->empty()) {
             dealer_->send_request_with_data(req, img->payload);
         } else {
-            if (config_.mode == "File" && img->payload && !img->payload->empty()) {
-                std::ofstream ofs(ref.uri, std::ios::binary);
+            if ((config_.mode == "File" || config_.mode == "Http") &&
+                img->payload && !img->payload->empty()) {
+                std::string save_path = image_save_path_ + "/" + ref.file_name;
+                std::ofstream ofs(save_path, std::ios::binary);
                 if (ofs.is_open()) {
                     ofs.write(reinterpret_cast<const char*>(img->payload->data),
                               img->payload->size);
                     ofs.close();
+                    Logger::instance().debug("CoreModule",
+                        "Image saved: " + save_path);
                 }
             }
             dealer_->send_request(req);

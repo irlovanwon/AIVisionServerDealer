@@ -17,6 +17,7 @@ Config ConfigManager::from_json(const nlohmann::json& j) {
     config.dealer_id = j.value("dealer_id", "Edge001");
     config.mode = j.value("mode", "Binary");
     config.jpeg_quality = j.value("jpeg_quality", 85);
+    config.http_file_server_port = j.value("http_file_server_port", 8089);
     config.log_level = j.value("log_level", "info");
 
     if (j.contains("api1a")) {
@@ -69,6 +70,7 @@ nlohmann::json ConfigManager::to_json(const Config& config) {
     j["dealer_id"] = config.dealer_id;
     j["mode"] = config.mode;
     j["jpeg_quality"] = config.jpeg_quality;
+    j["http_file_server_port"] = config.http_file_server_port;
     j["log_level"] = config.log_level;
 
     j["api1a"] = {

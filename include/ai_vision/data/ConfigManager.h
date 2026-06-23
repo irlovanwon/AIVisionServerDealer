@@ -63,6 +63,7 @@ struct Config {
     std::string dealer_id = "Edge001";
     std::string mode = "Binary";
     int jpeg_quality = 85;
+    int http_file_server_port = 8089;
     Api1aConfig api1a;
     Api1bConfig api1b;
     Api2aConfig api2a;
