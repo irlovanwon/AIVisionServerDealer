@@ -47,10 +47,19 @@ bool DetectionDealer::connect(const Api1aConfig& config) {
     int rcvhwm = config.rcvhwm;
     zmq_setsockopt(zmq_socket_, ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm));
 
+    monitor_addr_ = "inproc://detection_dealer_monitor";
+    zmq_socket_monitor(zmq_socket_, monitor_addr_.c_str(),
+                       ZMQ_EVENT_CONNECTED | ZMQ_EVENT_DISCONNECTED);
+
+    running_.store(true);
+    monitor_thread_ = std::thread([this]() { monitor_thread_func(monitor_addr_); });
+
     std::string endpoint = config.endpoint();
     if (zmq_connect(zmq_socket_, endpoint.c_str()) != 0) {
         Logger::instance().error("DetectionDealer",
             "ZMQ connect failed: " + std::string(zmq_strerror(zmq_errno())));
+        running_.store(false);
+        if (monitor_thread_.joinable()) monitor_thread_.join();
         zmq_close(zmq_socket_);
         zmq_ctx_destroy(zmq_context_);
         zmq_socket_ = nullptr;
@@ -58,15 +67,9 @@ bool DetectionDealer::connect(const Api1aConfig& config) {
         return false;
     }
 
-    monitor_addr_ = "inproc://detection_dealer_monitor";
-    zmq_socket_monitor(zmq_socket_, monitor_addr_.c_str(),
-                       ZMQ_EVENT_CONNECTED | ZMQ_EVENT_DISCONNECTED);
-
     poll_timeout_ms_ = config.poll_timeout_ms;
     connected_.store(true);
-    running_.store(true);
     poll_thread_ = std::thread([this]() { poll_thread_func(); });
-    monitor_thread_ = std::thread([this]() { monitor_thread_func(monitor_addr_); });
 
     Logger::instance().info("DetectionDealer",
         "DEALER connected to " + endpoint + " (identity: " + config.identity + ")");
