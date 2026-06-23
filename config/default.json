@@ -1,6 +1,8 @@
 {
     "version": "1.0",
     "dealer_id": "Edge001",
+    "mode": "Binary",
+    "jpeg_quality": 85,
     "api1a": {
         "transport": "ipc",
         "endpoint_local": "ipc:///tmp/ai_vision_dealer_detection",
@@ -21,17 +23,21 @@
         "transport": "ipc",
         "channels": {
             "image": "ipc:///tmp/sc_pub_stereo_image",
-            "stereo_image": "ipc:///tmp/sc_pub_stereo_image"
+            "depth_map": "ipc:///tmp/sc_pub_depth_map",
+            "point_cloud": "ipc:///tmp/sc_pub_point_cloud",
+            "imu": "ipc:///tmp/sc_pub_imu",
+            "magnetometer": "ipc:///tmp/sc_pub_magnetometer",
+            "barometer": "ipc:///tmp/sc_pub_barometer"
         },
         "default_channel": "image",
-        "stereo_mode": true,
         "rcvhwm": 10
     },
     "api2b": {
-        "transport": "ipc",
-        "endpoint_local": "ipc:///tmp/ai_vision_dealer_result",
-        "endpoint_remote": "tcp://*:5556",
-        "sndhwm": 10
+        "host": "0.0.0.0",
+        "port": 8446,
+        "cert_path": "certs/server.crt",
+        "key_path": "certs/server.key",
+        "worker_threads": 4
     },
     "log_level": "info"
 }

@@ -18,7 +18,7 @@ public:
     ResultPublisher();
     ~ResultPublisher();
 
-    bool bind(const Api2bConfig& config);
+    bool bind(const std::string& endpoint);
     void unbind();
 
     void publish_result(const std::string& transaction_id,

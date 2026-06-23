@@ -17,7 +17,7 @@ ResultPublisher::~ResultPublisher() {
     unbind();
 }
 
-bool ResultPublisher::bind(const Api2bConfig& config) {
+bool ResultPublisher::bind(const std::string& endpoint) {
     zmq_context_ = zmq_ctx_new();
     if (!zmq_context_) {
         Logger::instance().error("ResultPublisher", "Failed to create ZMQ context");
@@ -34,11 +34,10 @@ bool ResultPublisher::bind(const Api2bConfig& config) {
 
     int linger = 0;
     zmq_setsockopt(zmq_socket_, ZMQ_LINGER, &linger, sizeof(linger));
-    int sndhwm = config.sndhwm;
+    int sndhwm = 10;
     zmq_setsockopt(zmq_socket_, ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm));
 
-    std::string ep = config.endpoint();
-    if (zmq_bind(zmq_socket_, ep.c_str()) != 0) {
+    if (zmq_bind(zmq_socket_, endpoint.c_str()) != 0) {
         Logger::instance().error("ResultPublisher",
             "ZMQ bind failed: " + std::string(zmq_strerror(zmq_errno())));
         zmq_close(zmq_socket_);
@@ -48,9 +47,9 @@ bool ResultPublisher::bind(const Api2bConfig& config) {
         return false;
     }
 
-    endpoint_ = ep;
+    endpoint_ = endpoint;
     bound_.store(true);
-    Logger::instance().info("ResultPublisher", "PUB bound to " + ep);
+    Logger::instance().info("ResultPublisher", "PUB bound to " + endpoint);
     return true;
 }
 

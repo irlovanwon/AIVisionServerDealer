@@ -10,6 +10,7 @@
 #include "ai_vision/api1/DetectionDealer.h"
 #include "ai_vision/api2/ResultPublisher.h"
 #include "ai_vision/common/Logger.h"
+#include <fstream>
 
 namespace ai_vision {
 
@@ -130,7 +131,7 @@ void CoreModule::pipeline_thread_func() {
         DetectionRequest req;
         req.transaction_id = generate_transaction_id();
         req.dealer_id = config_.dealer_id;
-        req.mode = "Stream";
+        req.mode = config_.mode;
         req.timestamp = img->timestamp.to_string();
 
         ImageRef ref;
@@ -138,15 +139,32 @@ void CoreModule::pipeline_thread_func() {
                         (img->part.empty() ? "" : "-" + img->part) + ".jpg";
         ref.resolution = img->resolution;
         ref.format = img->format;
+
+        if (config_.mode == "File") {
+            ref.uri = image_save_path_ + "/" + ref.file_name;
+        } else if (config_.mode == "Http") {
+            ref.uri = http_base_url_ + "/" + ref.file_name;
+        } else {
+            ref.uri = "";
+        }
         req.data.push_back(ref);
 
         Logger::instance().debug("CoreModule",
             "Sending detection request: " + req.transaction_id +
+            " mode=" + req.mode +
             " (" + std::to_string(req.data.size()) + " images)");
 
-        if (img->payload && !img->payload->empty()) {
+        if (config_.mode == "Binary" && img->payload && !img->payload->empty()) {
             dealer_->send_request_with_data(req, img->payload);
         } else {
+            if (config_.mode == "File" && img->payload && !img->payload->empty()) {
+                std::ofstream ofs(ref.uri, std::ios::binary);
+                if (ofs.is_open()) {
+                    ofs.write(reinterpret_cast<const char*>(img->payload->data),
+                              img->payload->size);
+                    ofs.close();
+                }
+            }
             dealer_->send_request(req);
         }
 

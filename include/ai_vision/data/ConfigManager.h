@@ -2,7 +2,7 @@
  * Copyright(c) 2026-2030, VIATECH & UZONE All rights reserved
  * Des: JSON configuration manager — loads/saves config/default.json
  * Date: 20260614
- * Modification:
+ * Modification: 20260623 — 3-mode system, API2b HTTPS, expanded API2a channels
  */
 #pragma once
 
@@ -38,7 +38,6 @@ struct Api2aConfig {
     std::string transport = "ipc";
     nlohmann::json channels;
     std::string default_channel = "image";
-    bool stereo_mode = false;
     int rcvhwm = 10;
 
     std::string channel_endpoint(const std::string& name) const {
@@ -48,19 +47,22 @@ struct Api2aConfig {
 };
 
 struct Api2bConfig {
-    std::string transport = "ipc";
-    std::string endpoint_local = "ipc:///tmp/ai_vision_dealer_result";
-    std::string endpoint_remote = "tcp://*:5556";
-    int sndhwm = 10;
+    std::string host = "0.0.0.0";
+    int port = 8446;
+    std::string cert_path = "certs/server.crt";
+    std::string key_path = "certs/server.key";
+    int worker_threads = 4;
 
-    std::string endpoint() const {
-        return (transport == "tcp") ? endpoint_remote : endpoint_local;
+    operator Api1bConfig() const {
+        return {host, port, cert_path, key_path, worker_threads};
     }
 };
 
 struct Config {
     std::string version = "1.0";
     std::string dealer_id = "Edge001";
+    std::string mode = "Binary";
+    int jpeg_quality = 85;
     Api1aConfig api1a;
     Api1bConfig api1b;
     Api2aConfig api2a;

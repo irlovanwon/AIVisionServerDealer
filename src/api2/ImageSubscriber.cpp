@@ -28,9 +28,12 @@ bool ImageSubscriber::connect(const Api2aConfig& config) {
     connected_.store(true);
 
     std::vector<std::string> channel_names;
-    channel_names.push_back(config.default_channel);
-    if (config.stereo_mode && config.default_channel != "stereo_image") {
-        channel_names.push_back("stereo_image");
+    for (auto it = config.channels.begin(); it != config.channels.end(); ++it) {
+        channel_names.push_back(it.key());
+    }
+
+    if (channel_names.empty()) {
+        channel_names.push_back(config.default_channel);
     }
 
     for (const auto& ch : channel_names) {
@@ -42,14 +45,13 @@ bool ImageSubscriber::connect(const Api2aConfig& config) {
         }
 
         subscribe_threads_.emplace_back(
-            [this, ch, endpoint, config]() {
+            [this, ch, endpoint]() {
                 subscribe_thread_func(ch, endpoint);
             });
     }
 
     Logger::instance().info("ImageSubscriber",
-        "SUB connected (" + std::to_string(channel_names.size()) + " channels, stereo=" +
-        (config.stereo_mode ? "on" : "off") + ")");
+        "SUB connected (" + std::to_string(channel_names.size()) + " channels)");
     return true;
 }
 

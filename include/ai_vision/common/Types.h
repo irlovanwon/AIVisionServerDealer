@@ -50,6 +50,12 @@ struct ImageData {
     PayloadPtr payload;
 };
 
+struct SensorData {
+    Timestamp timestamp;
+    std::string type;
+    nlohmann::json readings;
+};
+
 struct ImageRef {
     std::string uri;
     std::string file_name;
@@ -59,7 +65,7 @@ struct ImageRef {
 
 struct DetectionRequest {
     std::string transaction_id;
-    std::string mode = "File";
+    std::string mode = "Binary";
     std::string dealer_id;
     std::vector<ImageRef> data;
     std::string timestamp;

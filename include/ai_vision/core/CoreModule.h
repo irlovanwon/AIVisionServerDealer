@@ -39,6 +39,8 @@ public:
     void set_image_buffer(std::shared_ptr<ImageBuffer> buffer);
     void set_detection_dealer(std::shared_ptr<DetectionDealer> dealer);
     void set_result_publisher(std::shared_ptr<ResultPublisher> publisher);
+    void set_image_save_path(const std::string& path) { image_save_path_ = path; }
+    void set_http_base_url(const std::string& url) { http_base_url_ = url; }
 
     bool start();
     void stop();
@@ -71,6 +73,9 @@ private:
     std::atomic<bool> processing_paused_{false};
     std::atomic<size_t> pending_results_{0};
     size_t max_pending_results_ = 10;
+
+    std::string image_save_path_ = "/tmp/ai_vision_images";
+    std::string http_base_url_;
 
     std::queue<ResultEntry> result_queue_;
     std::mutex result_mutex_;
