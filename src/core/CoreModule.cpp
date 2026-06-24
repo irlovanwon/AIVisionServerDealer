@@ -129,7 +129,9 @@ void CoreModule::pipeline_thread_func() {
         }
 
         DetectionRequest req;
-        req.transaction_id = generate_transaction_id();
+        req.transaction_id = img->transaction_id.empty()
+                            ? generate_transaction_id()
+                            : img->transaction_id;
         req.dealer_id = config_.dealer_id;
         req.mode = config_.mode;
         req.timestamp = img->timestamp.to_string();

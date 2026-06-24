@@ -41,6 +41,7 @@ struct Payload {
 using PayloadPtr = std::shared_ptr<Payload>;
 
 struct ImageData {
+    std::string transaction_id;
     Timestamp timestamp;
     uint64_t pair_id = 0;
     std::string channel;

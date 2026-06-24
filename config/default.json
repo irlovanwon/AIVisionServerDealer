@@ -23,7 +23,7 @@
     "api2a": {
         "transport": "ipc",
         "channels": {
-            "image": "ipc:///tmp/sc_pub_stereo_image",
+            "image": "ipc:///tmp/core_detection_pub",
             "depth_map": "ipc:///tmp/sc_pub_depth_map",
             "point_cloud": "ipc:///tmp/sc_pub_point_cloud",
             "imu": "ipc:///tmp/sc_pub_imu",
@@ -32,7 +32,7 @@
         },
         "default_channel": "image",
         "rcvhwm": 10,
-        "result_endpoint": "ipc:///tmp/ai_vision_dealer_result"
+        "result_endpoint": "ipc:///tmp/core_detection_result"
     },
     "api2b": {
         "host": "0.0.0.0",

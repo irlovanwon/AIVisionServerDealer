@@ -138,6 +138,7 @@ void ImageSubscriber::subscribe_thread_func(const std::string& channel,
         }
 
         auto img = std::make_shared<ImageData>();
+        img->transaction_id = header.value("TransactionID", "");
         img->channel = channel;
         img->timestamp = {
             header.value("ts_sec", (int64_t)0),

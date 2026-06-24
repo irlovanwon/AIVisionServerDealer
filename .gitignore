@@ -11,3 +11,4 @@ certs/
 # OS files
 .DS_Store
 *~
+*.bak
