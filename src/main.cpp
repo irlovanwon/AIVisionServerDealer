@@ -20,9 +20,13 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <fstream>
 #include <sstream>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 static std::atomic<bool> g_running{true};
 
@@ -91,6 +95,114 @@ static void http_file_server_thread(int port, const std::string& root_dir) {
         close(client_fd);
     }
     close(server_fd);
+}
+
+static void ensure_ai_engine_started(const std::string& url) {
+    std::string host, port = "8000", path = "/ops/config";
+    std::string tmp = url;
+    if (tmp.substr(0, 8) == "https://") tmp = tmp.substr(8);
+    else if (tmp.substr(0, 7) == "http://") tmp = tmp.substr(7);
+    size_t slash = tmp.find('/');
+    if (slash != std::string::npos) {
+        path = tmp.substr(slash);
+        tmp = tmp.substr(0, slash);
+    }
+    size_t colon = tmp.find(':');
+    if (colon != std::string::npos) {
+        host = tmp.substr(0, colon);
+        port = tmp.substr(colon + 1);
+    } else {
+        host = tmp;
+    }
+
+    struct hostent* he = gethostbyname(host.c_str());
+    if (!he) {
+        ai_vision::Logger::instance().warn("Main", "Cannot resolve AI engine host: " + host);
+        return;
+    }
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) return;
+    struct timeval tv{10, 0};
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+
+    struct sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(std::stoi(port));
+    std::memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
+
+    if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        ai_vision::Logger::instance().warn("Main", "Cannot connect to AI engine at " + host + ":" + port);
+        close(sock);
+        return;
+    }
+
+    bool use_tls = (url.substr(0, 8) == "https://");
+    std::string response;
+
+    if (use_tls) {
+        SSL_CTX* ctx = SSL_CTX_new(TLS_client_method());
+        if (!ctx) { close(sock); return; }
+        SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
+        SSL* ssl = SSL_new(ctx);
+        SSL_set_fd(ssl, sock);
+        if (SSL_connect(ssl) <= 0) {
+            ai_vision::Logger::instance().warn("Main", "TLS handshake failed with AI engine");
+            SSL_free(ssl);
+            SSL_CTX_free(ctx);
+            close(sock);
+            return;
+        }
+
+        std::string body = "{\"Action\":\"Start\"}";
+        std::string request =
+            "POST " + path + " HTTP/1.1\r\n"
+            "Host: " + host + ":" + port + "\r\n"
+            "Content-Type: application/json\r\n"
+            "Content-Length: " + std::to_string(body.size()) + "\r\n"
+            "Connection: close\r\n"
+            "\r\n" + body;
+
+        SSL_write(ssl, request.data(), request.size());
+
+        char buf[4096];
+        int bytes;
+        while ((bytes = SSL_read(ssl, buf, sizeof(buf))) > 0) {
+            response.append(buf, bytes);
+        }
+
+        SSL_shutdown(ssl);
+        SSL_free(ssl);
+        SSL_CTX_free(ctx);
+    } else {
+        std::string body = "{\"Action\":\"Start\"}";
+        std::string request =
+            "POST " + path + " HTTP/1.1\r\n"
+            "Host: " + host + ":" + port + "\r\n"
+            "Content-Type: application/json\r\n"
+            "Content-Length: " + std::to_string(body.size()) + "\r\n"
+            "Connection: close\r\n"
+            "\r\n" + body;
+
+        send(sock, request.data(), request.size(), 0);
+
+        char buf[4096];
+        int bytes;
+        while ((bytes = recv(sock, buf, sizeof(buf), 0)) > 0) {
+            response.append(buf, bytes);
+        }
+    }
+
+    close(sock);
+
+    if (response.find("\"status\":\"1\"") != std::string::npos ||
+        response.find("\"status\": \"1\"") != std::string::npos ||
+        response.find("200") != std::string::npos) {
+        ai_vision::Logger::instance().info("Main", "AI engine ensured started (Start sent to " + url + ")");
+    } else {
+        ai_vision::Logger::instance().warn("Main", "AI engine Start response: " + response.substr(0, 200));
+    }
 }
 
 static auto make_admin_handler(std::shared_ptr<ai_vision::CoreModule> core,
@@ -191,6 +303,8 @@ int main(int argc, char* argv[]) {
     if (!dealer->connect(config.api1a)) {
         ai_vision::Logger::instance().error("Main", "Failed to connect DetectionDealer");
     }
+
+    ensure_ai_engine_started(config.ai_engine_http_url);
 
     publisher->bind(config.api2a.result_endpoint);
 
