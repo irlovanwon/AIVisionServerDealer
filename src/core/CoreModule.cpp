@@ -47,18 +47,18 @@ void CoreModule::enqueue_result(const std::string& txn, const std::string& deale
                                  const nlohmann::json& json) {
     {
         std::lock_guard<std::mutex> lk(result_mutex_);
+        if (result_queue_.size() >= max_pending_results_) {
+            result_queue_.pop();
+            Logger::instance().warn("CoreModule",
+                "Result queue full — dropping oldest result");
+        }
         result_queue_.push({txn, dealer_id, json});
     }
     result_cv_.notify_one();
 }
 
 void CoreModule::ack_results(size_t count) {
-    size_t current = pending_results_.load();
-    size_t new_val = (current >= count) ? current - count : 0;
-    pending_results_.store(new_val);
-    if (new_val < max_pending_results_) {
-        processing_paused_.store(false);
-    }
+    (void)count;
 }
 
 bool CoreModule::start() {
@@ -102,8 +102,13 @@ void CoreModule::pipeline_thread_func() {
         }
 
         if (processing_paused_.load()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            continue;
+            if (pending_results_.load() < max_pending_results_) {
+                processing_paused_.store(false);
+                Logger::instance().info("CoreModule", "Processing resumed — pending below limit");
+            } else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                continue;
+            }
         }
 
         auto img = buffer_->pop(500);
@@ -129,9 +134,7 @@ void CoreModule::pipeline_thread_func() {
         }
 
         DetectionRequest req;
-        req.transaction_id = img->transaction_id.empty()
-                            ? generate_transaction_id()
-                            : img->transaction_id;
+        req.transaction_id = generate_transaction_id();
         req.dealer_id = config_.dealer_id;
         req.mode = config_.mode;
         req.timestamp = img->timestamp.to_string();
@@ -156,8 +159,9 @@ void CoreModule::pipeline_thread_func() {
             " mode=" + req.mode +
             " (" + std::to_string(req.data.size()) + " images)");
 
+        bool send_ok = false;
         if (config_.mode == "Binary" && img->payload && !img->payload->empty()) {
-            dealer_->send_request_with_data(req, img->payload);
+            send_ok = dealer_->send_request_with_data(req, img->payload);
         } else {
             if ((config_.mode == "File" || config_.mode == "Http") &&
                 img->payload && !img->payload->empty()) {
@@ -171,14 +175,20 @@ void CoreModule::pipeline_thread_func() {
                         "Image saved: " + save_path);
                 }
             }
-            dealer_->send_request(req);
+            send_ok = dealer_->send_request(req);
+        }
+
+        if (!send_ok) {
+            Logger::instance().debug("CoreModule",
+                "Send failed (HWM full), silently dropping: " + req.transaction_id);
+            continue;
         }
 
         pending_results_.fetch_add(1, std::memory_order_relaxed);
         if (pending_results_.load() >= max_pending_results_) {
             processing_paused_.store(true);
             Logger::instance().warn("CoreModule",
-                "Processing paused — pending results at limit (" +
+                "Processing paused — in-flight requests at limit (" +
                 std::to_string(pending_results_.load()) + ")");
         }
     }
