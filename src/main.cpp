@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
 
     mkdir("/tmp/ai_vision_images", 0755);
 
-    auto buffer = std::make_shared<ai_vision::ImageBuffer>(20);
+    auto buffer = std::make_shared<ai_vision::ImageBuffer>(200);
 
     auto subscriber = std::make_shared<ai_vision::ImageSubscriber>();
     auto dealer = std::make_shared<ai_vision::DetectionDealer>();

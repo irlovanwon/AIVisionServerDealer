@@ -72,7 +72,7 @@ private:
 
     std::atomic<bool> processing_paused_{false};
     std::atomic<size_t> pending_results_{0};
-    size_t max_pending_results_ = 10;
+    size_t max_pending_results_ = 200;
 
     std::string image_save_path_ = "/tmp/ai_vision_images";
     std::string http_base_url_;
