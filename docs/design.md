@@ -96,7 +96,7 @@ See [folder_structure.md](folder_structure.md) for the full directory listing.
 
 ### 5.1 API 1 — Dealer ↔ AI Client
 
-**API 1a — AI Detection (ZMQ DEALER/DEALER):** Both the Dealer and the AI Client use ZMQ DEALER sockets for asynchronous request/response. The Dealer sends a detection request and the AI Client replies with detection results. The request payload depends on the active **Mode**:
+**API 1a — AI Detection (ZMQ DEALER/DEALER):** Used for AI detection. Both the Dealer and the AI Client use ZMQ DEALER sockets for asynchronous request/response. The Dealer sends a detection request and the AI Client replies with detection results. Supported data type: **image**. The request payload depends on the active **Mode**:
 
 | Mode | Request Payload | Notes |
 |------|-----------------|-------|
@@ -108,16 +108,30 @@ Supports both `tcp` and `ipc` (selectable via config).
 
 | Property | Value |
 |----------|-------|
-| Pattern | ZMQ DEALER ↔ DEALER |
-| Data | Raw image data (Binary mode) or URI reference (File/Http mode) |
+| Protocol | ZMQ DEALER ↔ DEALER |
+| Data type | Image |
 | Transport | `tcp` or `ipc` (configurable) |
 | Asynchronous | Yes — both sides send/receive without blocking |
 
-See [API.md §API1a](API.md#api-1a--ai-detection-zmq-dealerdealer) and [frame.md §API1a](frame.md#api-1a--ai-detection-frame-zmq-dealerdealer).
+> **No-Dealer Handling:** If no AI engine is connected to API1a, the Dealer prevents data overflow and provides a status return indicating the situation. See [§11 No-Dealer Handling](#11-no-dealer-handling-api1a).
 
-**API 1b — Admin Command (HTTPS):** The Dealer exposes an HTTPS server for admin commands — parameter get/set, mode selection, status checks.
+See [API.md §API1a](API.md#api-1a--ai-detection-zmq-dealerdealer) and [frame.md §API1a](frame.md#api-1a--ai-detection-frame-zmq-dealerdealer). API design: see the **AI detection** part in [API design/](API%20design/).
 
-See [API.md §API1b](API.md#api-1b--admin-command-https) and [frame.md §API1b](frame.md#api-1b--admin-frame-https).
+**API 1b — Admin Command (HTTPS):** Used for admin commands. The Dealer exposes an HTTPS server for admin commands — parameter get/set, mode selection, status checks.
+
+| Property | Value |
+|----------|-------|
+| Protocol | HTTPS (TLS mandatory) |
+| Actions | `SetParameter`, `GetParameter`, `CheckStatus`, `Pause`, `Resume`, `AckResult`, `Reconnect` |
+
+**Start/Stop Policy (AI Engine Keep-Warm):**
+
+- The AI engine shall normally be in **start** status.
+- When the AIVisionServerDealer service starts, it checks if the AI engine is started. If not, it sends `Action: "Start"` to the AI engine via HTTPS POST to `ai_engine_http_url`.
+- The Dealer **never** stops the AI engine — even when tasks are paused or stopped.
+- Rationale: each model reload incurs a first-inference warm-up penalty (~3s vs ~0.7s steady-state). Keeping the engine warm avoids this latency.
+
+See [API.md §API1b](API.md#api-1b--admin-command-https) and [frame.md §API1b](frame.md#api-1b--admin-frame-https). API design: see the **AI config** part in [API design/](API%20design/).
 
 ### 5.2 API 2 — Dealer ↔ Data Server
 
@@ -207,6 +221,7 @@ See [parameter.md](parameter.md) for the full parameter list.
 | `std::condition_variable` for dedicated threads | Dedicated ingest/worker threads wait on a condition variable instead of busy-polling, reducing CPU usage |
 | JSON for admin + control, ZMQ frames for image/result | JSON is human-readable for config; binary frames for image payloads |
 | Separate API1 and API2 config | Each module can be independently tuned for transport and endpoints |
+| AI engine kept warm (always started) | The Dealer sends `Action: "Start"` to the AI engine on startup via HTTPS POST. The AI engine is never stopped by the Dealer — even when tasks are paused or stopped. Each model reload incurs a first-inference warm-up penalty (~3s vs ~0.7s steady-state), so keeping the engine warm avoids this latency. |
 
 ---
 
@@ -247,6 +262,7 @@ The C++ `ResponseCode` enum is used internally by the admin/command handler logi
 | C14 | Pipeline supports backpressure via `processing_paused_` atomic: when pending unacknowledged results reach a limit, processing auto-pauses; the data server acknowledges via the command interface |
 | C15 | API2 applies JPEG encoding to image data before transfer onward to the AI client |
 | C16 | Default data transfer Mode is `Binary` |
+| C17 | On startup, the Dealer ensures the AI engine is started (sends `Action: "Start"` via HTTPS). The AI engine is never stopped by the Dealer — even when tasks are paused or stopped. |
 
 ---
 
