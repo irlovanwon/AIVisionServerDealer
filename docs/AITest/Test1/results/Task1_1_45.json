@@ -1,0 +1,64 @@
+{
+  "TransactionID": "BatchTest_1_45.bmp_20260623-044044-062",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.73",
+      "FileName": "1_45.bmp",
+      "Coordinates": "922,578,970,577,964,1198,916,1198",
+      "TimestampStart": "20260623-044044-063",
+      "TimestampEnd": "20260623-044044-714"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.71",
+      "FileName": "1_45.bmp",
+      "Coordinates": "1510,711,1558,709,1550,1194,1503,1191",
+      "TimestampStart": "20260623-044044-063",
+      "TimestampEnd": "20260623-044044-714"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.72",
+      "FileName": "1_45.bmp",
+      "Coordinates": "726,696,775,697,763,1197,713,1194",
+      "TimestampStart": "20260623-044044-063",
+      "TimestampEnd": "20260623-044044-714"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.78",
+      "FileName": "1_45.bmp",
+      "Coordinates": "317,7,371,5,367,589,313,589",
+      "TimestampStart": "20260623-044044-063",
+      "TimestampEnd": "20260623-044044-714"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.72",
+      "FileName": "1_45.bmp",
+      "Coordinates": "1709,588,1755,588,1745,1198,1695,1198",
+      "TimestampStart": "20260623-044044-063",
+      "TimestampEnd": "20260623-044044-714"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.77",
+      "FileName": "1_45.bmp",
+      "Coordinates": "517,5,572,4,565,464,514,467",
+      "TimestampStart": "20260623-044044-063",
+      "TimestampEnd": "20260623-044044-714"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.81",
+      "FileName": "1_45.bmp",
+      "Coordinates": "718,4,772,5,766,594,711,594",
+      "TimestampStart": "20260623-044044-063",
+      "TimestampEnd": "20260623-044044-714"
+    }
+  ],
+  "TimestampReceived": "20260623-044044-063",
+  "TimestampReplied": "20260623-044044-715"
+}

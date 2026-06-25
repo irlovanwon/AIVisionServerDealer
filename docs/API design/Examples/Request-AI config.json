@@ -1,0 +1,12 @@
+{
+    "TransactionID": "20260303012213",
+    "DealerID": "Edge001",
+    "Action": "SetParameter",
+    "Parameter": [
+        {
+            "ID": "Mode",
+            "Value": "GPU"
+        }
+    ],
+    "Timestamp": "20260423-111223"
+}

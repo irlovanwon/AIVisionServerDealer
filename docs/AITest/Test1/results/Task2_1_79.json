@@ -1,0 +1,16 @@
+{
+  "TransactionID": "BatchTest_1_79.bmp_20260623-044354-239",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.71",
+      "FileName": "1_79.bmp",
+      "Coordinates": "372,1100,423,1100,424,1198,375,1198",
+      "TimestampStart": "20260623-044354-239",
+      "TimestampEnd": "20260623-044354-887"
+    }
+  ],
+  "TimestampReceived": "20260623-044354-239",
+  "TimestampReplied": "20260623-044354-887"
+}

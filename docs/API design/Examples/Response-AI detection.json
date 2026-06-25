@@ -1,0 +1,33 @@
+{
+    "TransactionID": "20260303012213",
+    "DealerID": "AIModule001",
+    "Result": [
+        {
+            "LabelID": "OCR",
+            "Confidence": "0.96",
+            "FileName": "RAW-20260303-012213-226-L.jpg",
+            "Coordinates":"x1,y1,x2,y2,x3,y3,x4,y4",
+            "OCR":"2021222",
+            "TimestampStart":"",
+            "TimestampEnd":""
+        },
+        {
+            "LabelID": "T1",
+            "Confidence": "0.96",
+            "FileName": "RAW-20260303-012213-226-L.jpg",
+            "Coordinates":"x1,y1,x2,y2,x3,y3,x4,y4",
+            "TimestampStart":"",
+            "TimestampEnd":""
+        },
+        {
+            "LabelID": "groove2",
+            "Confidence": "0.96",
+            "FileName": "RAW-20260303-012214-500-L.jpg",
+            "Coordinates":"x1,y1,x2,y2,x3,y3,x4,y4", 
+            "TimestampStart":"",
+            "TimestampEnd":""
+        }
+    ],
+    "TimestampReceived": "20260423-111223",
+    "TimestampReplied": "20260423-111229"
+}

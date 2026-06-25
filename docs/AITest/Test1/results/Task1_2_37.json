@@ -1,0 +1,160 @@
+{
+  "TransactionID": "BatchTest_2_37.bmp_20260623-044118-464",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.78",
+      "FileName": "2_37.bmp",
+      "Coordinates": "570,700,621,701,620,1194,573,1193",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.76",
+      "FileName": "2_37.bmp",
+      "Coordinates": "187,690,237,692,235,1196,188,1194",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.83",
+      "FileName": "2_37.bmp",
+      "Coordinates": "1557,822,1606,821,1612,1196,1561,1194",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.78",
+      "FileName": "2_37.bmp",
+      "Coordinates": "1760,712,1808,713,1811,1192,1763,1191",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.83",
+      "FileName": "2_37.bmp",
+      "Coordinates": "381,811,429,810,432,1195,381,1192",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.80",
+      "FileName": "2_37.bmp",
+      "Coordinates": "1163,812,1211,812,1214,1191,1165,1191",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.83",
+      "FileName": "2_37.bmp",
+      "Coordinates": "1173,10,1226,8,1222,706,1171,707",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.77",
+      "FileName": "2_37.bmp",
+      "Coordinates": "969,700,1017,698,1020,1193,972,1191",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.84",
+      "FileName": "2_37.bmp",
+      "Coordinates": "780,12,834,10,831,705,780,707",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.83",
+      "FileName": "2_37.bmp",
+      "Coordinates": "398,11,450,9,448,707,398,709",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.83",
+      "FileName": "2_37.bmp",
+      "Coordinates": "769,815,818,815,820,1195,769,1193",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.83",
+      "FileName": "2_37.bmp",
+      "Coordinates": "11,8,62,6,54,708,6,708",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.79",
+      "FileName": "2_37.bmp",
+      "Coordinates": "5,802,50,799,55,1195,6,1192",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.84",
+      "FileName": "2_37.bmp",
+      "Coordinates": "1571,9,1624,9,1619,723,1569,723",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.71",
+      "FileName": "2_37.bmp",
+      "Coordinates": "1761,714,1812,712,1809,1191,1757,1190",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.76",
+      "FileName": "2_37.bmp",
+      "Coordinates": "1370,11,1423,10,1418,595,1369,593",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.84",
+      "FileName": "2_37.bmp",
+      "Coordinates": "974,12,1029,11,1027,586,977,589",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.84",
+      "FileName": "2_37.bmp",
+      "Coordinates": "1775,7,1826,6,1826,589,1777,591",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.83",
+      "FileName": "2_37.bmp",
+      "Coordinates": "198,15,252,11,252,581,203,581",
+      "TimestampStart": "20260623-044118-464",
+      "TimestampEnd": "20260623-044119-126"
+    }
+  ],
+  "TimestampReceived": "20260623-044118-464",
+  "TimestampReplied": "20260623-044119-126"
+}

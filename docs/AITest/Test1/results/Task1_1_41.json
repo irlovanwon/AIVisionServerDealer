@@ -1,0 +1,64 @@
+{
+  "TransactionID": "BatchTest_1_41.bmp_20260623-044041-441",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.83",
+      "FileName": "1_41.bmp",
+      "Coordinates": "730,833,768,834,765,1193,720,1190",
+      "TimestampStart": "20260623-044041-441",
+      "TimestampEnd": "20260623-044042-093"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.73",
+      "FileName": "1_41.bmp",
+      "Coordinates": "927,702,970,704,960,1198,914,1198",
+      "TimestampStart": "20260623-044041-441",
+      "TimestampEnd": "20260623-044042-093"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.72",
+      "FileName": "1_41.bmp",
+      "Coordinates": "125,713,171,713,165,1185,116,1183",
+      "TimestampStart": "20260623-044041-441",
+      "TimestampEnd": "20260623-044042-093"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.74",
+      "FileName": "1_41.bmp",
+      "Coordinates": "531,707,574,708,564,1191,518,1189",
+      "TimestampStart": "20260623-044041-441",
+      "TimestampEnd": "20260623-044042-093"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.80",
+      "FileName": "1_41.bmp",
+      "Coordinates": "1707,738,1752,739,1746,1194,1700,1192",
+      "TimestampStart": "20260623-044041-441",
+      "TimestampEnd": "20260623-044042-093"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.80",
+      "FileName": "1_41.bmp",
+      "Coordinates": "323,838,362,839,357,1176,312,1175",
+      "TimestampStart": "20260623-044041-441",
+      "TimestampEnd": "20260623-044042-093"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.75",
+      "FileName": "1_41.bmp",
+      "Coordinates": "1705,738,1751,738,1738,1192,1691,1192",
+      "TimestampStart": "20260623-044041-441",
+      "TimestampEnd": "20260623-044042-093"
+    }
+  ],
+  "TimestampReceived": "20260623-044041-441",
+  "TimestampReplied": "20260623-044042-093"
+}

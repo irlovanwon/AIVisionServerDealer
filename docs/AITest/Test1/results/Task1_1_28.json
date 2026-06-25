@@ -1,0 +1,64 @@
+{
+  "TransactionID": "BatchTest_1_28.bmp_20260623-044031-610",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.75",
+      "FileName": "1_28.bmp",
+      "Coordinates": "1679,516,1726,517,1712,1198,1664,1198",
+      "TimestampStart": "20260623-044031-611",
+      "TimestampEnd": "20260623-044032-261"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.68",
+      "FileName": "1_28.bmp",
+      "Coordinates": "1482,635,1532,634,1515,1194,1462,1193",
+      "TimestampStart": "20260623-044031-611",
+      "TimestampEnd": "20260623-044032-261"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.79",
+      "FileName": "1_28.bmp",
+      "Coordinates": "1316,9,1374,8,1370,406,1317,408",
+      "TimestampStart": "20260623-044031-611",
+      "TimestampEnd": "20260623-044032-261"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.79",
+      "FileName": "1_28.bmp",
+      "Coordinates": "1707,4,1760,3,1760,415,1708,417",
+      "TimestampStart": "20260623-044031-611",
+      "TimestampEnd": "20260623-044032-261"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.81",
+      "FileName": "1_28.bmp",
+      "Coordinates": "531,10,589,9,589,397,533,397",
+      "TimestampStart": "20260623-044031-611",
+      "TimestampEnd": "20260623-044032-261"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.79",
+      "FileName": "1_28.bmp",
+      "Coordinates": "926,9,985,8,983,398,928,400",
+      "TimestampStart": "20260623-044031-611",
+      "TimestampEnd": "20260623-044032-261"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.79",
+      "FileName": "1_28.bmp",
+      "Coordinates": "730,9,787,7,784,521,728,521",
+      "TimestampStart": "20260623-044031-611",
+      "TimestampEnd": "20260623-044032-261"
+    }
+  ],
+  "TimestampReceived": "20260623-044031-611",
+  "TimestampReplied": "20260623-044032-261"
+}

@@ -1,0 +1,128 @@
+{
+  "TransactionID": "BatchTest_2_4.bmp_20260623-044120-456",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.78",
+      "FileName": "2_4.bmp",
+      "Coordinates": "1338,701,1386,701,1388,1193,1342,1192",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.77",
+      "FileName": "2_4.bmp",
+      "Coordinates": "946,697,995,697,996,1194,950,1194",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.81",
+      "FileName": "2_4.bmp",
+      "Coordinates": "751,813,799,812,803,1192,754,1192",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.82",
+      "FileName": "2_4.bmp",
+      "Coordinates": "1144,818,1191,817,1193,1194,1144,1193",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.80",
+      "FileName": "2_4.bmp",
+      "Coordinates": "365,806,412,805,415,1194,367,1193",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.84",
+      "FileName": "2_4.bmp",
+      "Coordinates": "1540,823,1588,822,1593,1195,1541,1193",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.77",
+      "FileName": "2_4.bmp",
+      "Coordinates": "554,696,603,695,607,1195,560,1194",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.78",
+      "FileName": "2_4.bmp",
+      "Coordinates": "1740,700,1787,700,1796,1191,1747,1190",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.83",
+      "FileName": "2_4.bmp",
+      "Coordinates": "1175,7,1229,5,1223,716,1170,718",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.83",
+      "FileName": "2_4.bmp",
+      "Coordinates": "784,8,838,6,831,708,779,709",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.74",
+      "FileName": "2_4.bmp",
+      "Coordinates": "1742,703,1789,703,1788,1195,1739,1193",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.83",
+      "FileName": "2_4.bmp",
+      "Coordinates": "1574,7,1627,7,1624,725,1573,725",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.83",
+      "FileName": "2_4.bmp",
+      "Coordinates": "13,6,64,4,55,708,6,709",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.77",
+      "FileName": "2_4.bmp",
+      "Coordinates": "169,691,218,690,221,1196,175,1195",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.84",
+      "FileName": "2_4.bmp",
+      "Coordinates": "395,11,450,9,448,710,395,711",
+      "TimestampStart": "20260623-044120-457",
+      "TimestampEnd": "20260623-044121-120"
+    }
+  ],
+  "TimestampReceived": "20260623-044120-457",
+  "TimestampReplied": "20260623-044121-120"
+}

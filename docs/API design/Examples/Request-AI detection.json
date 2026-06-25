@@ -1,0 +1,20 @@
+{
+    "TransactionID": "20260303012213",
+    "Mode":"File",
+    "DealerID": "Edge001",
+    "Data": [
+        {
+            "URI": "/home/ecids/image/20260303-012213-226-L.jpg",
+            "FileName": "RAW-20260303-012213-226-L.jpg",
+            "Resolution": "1920,1080",
+            "Format": "Mono"
+        },
+        {
+            "URI": "/home/ecids/image/20260303-012213-226-R.jpg",
+            "FileName": "RAW-20260303-012213-226-R.jpg",
+            "Resolution": "1920,1080",
+            "Format": "Mono"
+        }
+    ],
+    "Timestamp": "20260423-111223"
+}

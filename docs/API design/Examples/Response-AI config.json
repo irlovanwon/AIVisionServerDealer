@@ -1,0 +1,13 @@
+{
+    "TransactionID": "20260303012213",
+    "DealerID": "AIModule001",
+    "Status":"1" ,
+    "Parameter": [
+        {
+            "ID": "Mode",
+            "Value": "GPU"
+        }
+    ],
+    "TimestampReceived": "20260423-111223",
+    "TimestampReplied": "20260423-111229"
+}

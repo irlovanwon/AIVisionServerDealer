@@ -1,0 +1,64 @@
+{
+  "TransactionID": "BatchTest_1_20.bmp_20260623-044026-357",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.83",
+      "FileName": "1_20.bmp",
+      "Coordinates": "1685,763,1731,763,1724,1198,1676,1195",
+      "TimestampStart": "20260623-044026-358",
+      "TimestampEnd": "20260623-044027-008"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.75",
+      "FileName": "1_20.bmp",
+      "Coordinates": "506,719,548,722,541,1192,497,1190",
+      "TimestampStart": "20260623-044026-358",
+      "TimestampEnd": "20260623-044027-008"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.73",
+      "FileName": "1_20.bmp",
+      "Coordinates": "899,717,945,717,939,1197,893,1195",
+      "TimestampStart": "20260623-044026-358",
+      "TimestampEnd": "20260623-044027-008"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.78",
+      "FileName": "1_20.bmp",
+      "Coordinates": "703,866,743,866,741,1194,695,1193",
+      "TimestampStart": "20260623-044026-358",
+      "TimestampEnd": "20260623-044027-008"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.81",
+      "FileName": "1_20.bmp",
+      "Coordinates": "1489,871,1530,871,1530,1195,1483,1194",
+      "TimestampStart": "20260623-044026-358",
+      "TimestampEnd": "20260623-044027-008"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.79",
+      "FileName": "1_20.bmp",
+      "Coordinates": "1294,733,1338,734,1337,1193,1291,1193",
+      "TimestampStart": "20260623-044026-358",
+      "TimestampEnd": "20260623-044027-008"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.78",
+      "FileName": "1_20.bmp",
+      "Coordinates": "1886,867,1918,874,1915,1187,1872,1190",
+      "TimestampStart": "20260623-044026-358",
+      "TimestampEnd": "20260623-044027-008"
+    }
+  ],
+  "TimestampReceived": "20260623-044026-358",
+  "TimestampReplied": "20260623-044027-008"
+}

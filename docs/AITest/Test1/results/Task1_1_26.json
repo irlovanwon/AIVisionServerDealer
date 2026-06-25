@@ -1,0 +1,48 @@
+{
+  "TransactionID": "BatchTest_1_26.bmp_20260623-044030-298",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.82",
+      "FileName": "1_26.bmp",
+      "Coordinates": "921,883,962,883,961,1193,914,1193",
+      "TimestampStart": "20260623-044030-299",
+      "TimestampEnd": "20260623-044030-950"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.86",
+      "FileName": "1_26.bmp",
+      "Coordinates": "714,1004,764,1004,766,1185,719,1188",
+      "TimestampStart": "20260623-044030-299",
+      "TimestampEnd": "20260623-044030-950"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.82",
+      "FileName": "1_26.bmp",
+      "Coordinates": "1698,892,1743,891,1741,1198,1694,1198",
+      "TimestampStart": "20260623-044030-299",
+      "TimestampEnd": "20260623-044030-950"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.81",
+      "FileName": "1_26.bmp",
+      "Coordinates": "1299,872,1341,871,1350,1194,1303,1194",
+      "TimestampStart": "20260623-044030-299",
+      "TimestampEnd": "20260623-044030-950"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.78",
+      "FileName": "1_26.bmp",
+      "Coordinates": "117,861,158,861,156,1184,108,1182",
+      "TimestampStart": "20260623-044030-299",
+      "TimestampEnd": "20260623-044030-950"
+    }
+  ],
+  "TimestampReceived": "20260623-044030-299",
+  "TimestampReplied": "20260623-044030-950"
+}

@@ -1,0 +1,64 @@
+{
+  "TransactionID": "BatchTest_2_41.bmp_20260623-044121-780",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.81",
+      "FileName": "2_41.bmp",
+      "Coordinates": "1173,806,1220,806,1223,1193,1174,1193",
+      "TimestampStart": "20260623-044121-780",
+      "TimestampEnd": "20260623-044122-428"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.74",
+      "FileName": "2_41.bmp",
+      "Coordinates": "1772,699,1818,699,1821,1193,1773,1191",
+      "TimestampStart": "20260623-044121-780",
+      "TimestampEnd": "20260623-044122-428"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.80",
+      "FileName": "2_41.bmp",
+      "Coordinates": "9,800,56,798,58,1198,11,1197",
+      "TimestampStart": "20260623-044121-780",
+      "TimestampEnd": "20260623-044122-428"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.83",
+      "FileName": "2_41.bmp",
+      "Coordinates": "1572,811,1616,812,1620,1194,1571,1192",
+      "TimestampStart": "20260623-044121-780",
+      "TimestampEnd": "20260623-044122-428"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.81",
+      "FileName": "2_41.bmp",
+      "Coordinates": "782,802,826,802,828,1195,779,1191",
+      "TimestampStart": "20260623-044121-780",
+      "TimestampEnd": "20260623-044122-428"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.78",
+      "FileName": "2_41.bmp",
+      "Coordinates": "1571,810,1617,809,1618,1193,1568,1191",
+      "TimestampStart": "20260623-044121-780",
+      "TimestampEnd": "20260623-044122-428"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.76",
+      "FileName": "2_41.bmp",
+      "Coordinates": "977,686,1023,687,1025,1197,980,1196",
+      "TimestampStart": "20260623-044121-780",
+      "TimestampEnd": "20260623-044122-428"
+    }
+  ],
+  "TimestampReceived": "20260623-044121-780",
+  "TimestampReplied": "20260623-044122-428"
+}

@@ -1,0 +1,72 @@
+{
+  "TransactionID": "BatchTest_1_8.bmp_20260623-044057-183",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.82",
+      "FileName": "1_8.bmp",
+      "Coordinates": "1306,880,1354,880,1354,1198,1304,1197",
+      "TimestampStart": "20260623-044057-183",
+      "TimestampEnd": "20260623-044057-836"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.82",
+      "FileName": "1_8.bmp",
+      "Coordinates": "1696,888,1740,889,1734,1196,1687,1196",
+      "TimestampStart": "20260623-044057-183",
+      "TimestampEnd": "20260623-044057-836"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.77",
+      "FileName": "1_8.bmp",
+      "Coordinates": "1500,1008,1547,1007,1547,1191,1500,1190",
+      "TimestampStart": "20260623-044057-183",
+      "TimestampEnd": "20260623-044057-836"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.79",
+      "FileName": "1_8.bmp",
+      "Coordinates": "713,1000,763,997,760,1194,708,1190",
+      "TimestampStart": "20260623-044057-183",
+      "TimestampEnd": "20260623-044057-836"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.79",
+      "FileName": "1_8.bmp",
+      "Coordinates": "916,873,963,874,963,1192,915,1191",
+      "TimestampStart": "20260623-044057-183",
+      "TimestampEnd": "20260623-044057-836"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.77",
+      "FileName": "1_8.bmp",
+      "Coordinates": "113,12,165,12,163,762,111,762",
+      "TimestampStart": "20260623-044057-183",
+      "TimestampEnd": "20260623-044057-836"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.77",
+      "FileName": "1_8.bmp",
+      "Coordinates": "916,14,970,15,963,765,910,764",
+      "TimestampStart": "20260623-044057-183",
+      "TimestampEnd": "20260623-044057-836"
+    },
+    {
+      "LabelID": "tread_cleat_up",
+      "Confidence": "0.74",
+      "FileName": "1_8.bmp",
+      "Coordinates": "522,13,573,12,563,770,510,769",
+      "TimestampStart": "20260623-044057-183",
+      "TimestampEnd": "20260623-044057-836"
+    }
+  ],
+  "TimestampReceived": "20260623-044057-183",
+  "TimestampReplied": "20260623-044057-836"
+}

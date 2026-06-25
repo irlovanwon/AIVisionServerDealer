@@ -1,0 +1,64 @@
+{
+  "TransactionID": "BatchTest_1_33.bmp_20260623-044035-541",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.84",
+      "FileName": "1_33.bmp",
+      "Coordinates": "503,830,548,830,548,1196,499,1195",
+      "TimestampStart": "20260623-044035-542",
+      "TimestampEnd": "20260623-044036-196"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.78",
+      "FileName": "1_33.bmp",
+      "Coordinates": "1681,844,1726,844,1721,1198,1673,1198",
+      "TimestampStart": "20260623-044035-542",
+      "TimestampEnd": "20260623-044036-196"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.81",
+      "FileName": "1_33.bmp",
+      "Coordinates": "1278,822,1322,821,1324,1192,1277,1192",
+      "TimestampStart": "20260623-044035-542",
+      "TimestampEnd": "20260623-044036-196"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.82",
+      "FileName": "1_33.bmp",
+      "Coordinates": "897,834,942,832,945,1194,899,1193",
+      "TimestampStart": "20260623-044035-542",
+      "TimestampEnd": "20260623-044036-196"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.79",
+      "FileName": "1_33.bmp",
+      "Coordinates": "97,820,142,819,142,1186,92,1185",
+      "TimestampStart": "20260623-044035-542",
+      "TimestampEnd": "20260623-044036-196"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.75",
+      "FileName": "1_33.bmp",
+      "Coordinates": "61,818,102,821,101,1158,48,1163",
+      "TimestampStart": "20260623-044035-542",
+      "TimestampEnd": "20260623-044036-196"
+    },
+    {
+      "LabelID": "tread_cleat_dn",
+      "Confidence": "0.84",
+      "FileName": "1_33.bmp",
+      "Coordinates": "297,965,350,961,349,1186,300,1185",
+      "TimestampStart": "20260623-044035-542",
+      "TimestampEnd": "20260623-044036-196"
+    }
+  ],
+  "TimestampReceived": "20260623-044035-542",
+  "TimestampReplied": "20260623-044036-196"
+}

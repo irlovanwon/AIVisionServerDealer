@@ -1,0 +1,16 @@
+{
+  "TransactionID": "BatchTest_0_102.bmp_20260623-044141-633",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "riser_cleat",
+      "Confidence": "0.75",
+      "FileName": "0_102.bmp",
+      "Coordinates": "1767,0,1918,0,1918,379,1795,382",
+      "TimestampStart": "20260623-044141-634",
+      "TimestampEnd": "20260623-044142-282"
+    }
+  ],
+  "TimestampReceived": "20260623-044141-634",
+  "TimestampReplied": "20260623-044142-282"
+}

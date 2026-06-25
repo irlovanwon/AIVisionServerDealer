@@ -1,0 +1,16 @@
+{
+  "TransactionID": "BatchTest_0_14.bmp_20260623-044153-270",
+  "DealerID": "BatchTest",
+  "Result": [
+    {
+      "LabelID": "T2",
+      "Confidence": "0.23",
+      "FileName": "0_14.bmp",
+      "Coordinates": "569,0,1721,0,1721,732,569,732",
+      "TimestampStart": "20260623-044153-270",
+      "TimestampEnd": "20260623-044153-916"
+    }
+  ],
+  "TimestampReceived": "20260623-044153-270",
+  "TimestampReplied": "20260623-044153-916"
+}
