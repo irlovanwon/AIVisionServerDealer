@@ -61,6 +61,21 @@ void CoreModule::ack_results(size_t count) {
     }
 }
 
+void CoreModule::reset_state() {
+    pending_results_.store(0);
+    processing_paused_.store(false);
+    Logger::instance().info("CoreModule", "State reset — pending cleared, processing resumed");
+}
+
+void CoreModule::publish_notification(const std::string& type) {
+    nlohmann::json msg;
+    msg["Type"] = type;
+    msg["DealerID"] = config_.dealer_id;
+    msg["Status"] = "1";
+    enqueue_result("", config_.dealer_id, msg);
+    Logger::instance().info("CoreModule", "Published notification: " + type);
+}
+
 bool CoreModule::start() {
     if (running_.load()) return true;
     running_.store(true);

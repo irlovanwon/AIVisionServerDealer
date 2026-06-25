@@ -128,7 +128,8 @@ static auto make_admin_handler(std::shared_ptr<ai_vision::CoreModule> core,
             return ai_vision::make_response(ai_vision::ResponseCode::Success,
                 "Acknowledged " + std::to_string(count) + " results");
         } else if (action == "Reconnect") {
-            ai_vision::Logger::instance().info("Admin", "Reconnect requested -- scheduling async SUB reconnect");
+            ai_vision::Logger::instance().info("Admin", "Reconnect requested -- resetting state and reconnecting SUB");
+            core->reset_state();
             std::thread([subscriber, &config]() {
                 ai_vision::Logger::instance().info("ImageSubscriber", "Async reconnect: disconnecting...");
                 subscriber->disconnect();
@@ -201,10 +202,23 @@ int main(int argc, char* argv[]) {
     core->set_image_save_path("/tmp/ai_vision_images");
     core->set_http_base_url("http://127.0.0.1:" + std::to_string(config.http_file_server_port));
 
+    // When AI server reconnects (restart), reset pending state
+    dealer->set_reconnect_callback([core]() {
+        ai_vision::Logger::instance().info("Main", "AI server reconnected — resetting AIVD state");
+        core->reset_state();
+    });
+
     if (!core->start()) {
         ai_vision::Logger::instance().error("Main", "Failed to start CoreModule");
         return 1;
     }
+
+    // Notify Core that AIVD has (re)started — Core should clear its pending state
+    // Delay 2s to allow Core SUB to reconnect (ZMQ slow joiner protection)
+    std::thread([core]() {
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        core->publish_notification("Reconnect");
+    }).detach();
 
     auto admin_handler = make_admin_handler(core, subscriber, config);
 

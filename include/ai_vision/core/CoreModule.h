@@ -51,6 +51,8 @@ public:
     void ack_results(size_t count);
     bool is_paused() const { return processing_paused_.load(); }
     size_t pending_results() const { return pending_results_.load(); }
+    void reset_state();
+    void publish_notification(const std::string& type);
 
 private:
     void pipeline_thread_func();

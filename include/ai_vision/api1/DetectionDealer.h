@@ -18,6 +18,7 @@ namespace ai_vision {
 class DetectionDealer {
 public:
     using ResponseCallback = std::function<void(const DetectionResponse&)>;
+    using ReconnectCallback = std::function<void()>;
 
     DetectionDealer();
     ~DetectionDealer();
@@ -26,6 +27,7 @@ public:
     void disconnect();
 
     void set_response_callback(ResponseCallback cb);
+    void set_reconnect_callback(ReconnectCallback cb) { reconnect_cb_ = std::move(cb); }
 
     bool send_request(const DetectionRequest& request);
     bool send_request_with_data(const DetectionRequest& request, const PayloadPtr& payload);
@@ -43,6 +45,7 @@ private:
     std::thread poll_thread_;
     std::thread monitor_thread_;
     ResponseCallback callback_;
+    ReconnectCallback reconnect_cb_;
     std::string monitor_addr_;
     int poll_timeout_ms_ = 100;
 };

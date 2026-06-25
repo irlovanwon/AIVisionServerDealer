@@ -98,6 +98,7 @@ All ZMQ modules expose bounded queues via `sndhwm` (send) and/or `rcvhwm` (recei
 
     "jpeg_quality": 85,
     "http_file_server_port": 8089,
+    "ai_engine_http_url": "https://127.0.0.1:8000",
     "log_level": "info"
 }
 ```
@@ -181,6 +182,7 @@ All ZMQ modules expose bounded queues via `sndhwm` (send) and/or `rcvhwm` (recei
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `http_file_server_port` | `int` | `8089` | Port for the built-in HTTP file server. Used when `Mode = "Http"` — the Dealer saves images to `/tmp/ai_vision_images/` and serves them via this HTTP port. The AI client fetches images from `http://<host>:<port>/<filename>`. |
+| `ai_engine_http_url` | `string` | `https://127.0.0.1:8000` | AI engine control plane HTTP(S) endpoint. On startup, the Dealer sends `Action: "Start"` to this URL to ensure the AI engine is warm (model loaded). The AI engine is never stopped by the Dealer — see [design.md §8](design.md#8-key-design-decisions). |
 
 ### Logging
 
