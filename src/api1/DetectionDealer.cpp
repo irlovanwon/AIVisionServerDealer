@@ -218,6 +218,7 @@ void DetectionDealer::monitor_thread_func(const std::string& monitor_addr) {
         if (event == ZMQ_EVENT_CONNECTED) {
             client_connected_.store(true);
             Logger::instance().info("DetectionDealer", "AI client connected");
+            if (reconnect_cb_) reconnect_cb_();
         } else if (event == ZMQ_EVENT_DISCONNECTED) {
             client_connected_.store(false);
             Logger::instance().warn("DetectionDealer", "AI client disconnected");

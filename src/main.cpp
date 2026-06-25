@@ -214,10 +214,12 @@ int main(int argc, char* argv[]) {
     }
 
     // Notify Core that AIVD has (re)started — Core should clear its pending state
-    // Delay 2s to allow Core SUB to reconnect (ZMQ slow joiner protection)
+    // Retry 3 times with 2s interval to handle ZMQ slow joiner
     std::thread([core]() {
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        core->publish_notification("Reconnect");
+        for (int i = 0; i < 3; ++i) {
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            core->publish_notification("Reconnect");
+        }
     }).detach();
 
     auto admin_handler = make_admin_handler(core, subscriber, config);
