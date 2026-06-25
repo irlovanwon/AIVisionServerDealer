@@ -15,13 +15,19 @@ ImageSubscriber::ImageSubscriber() = default;
 
 ImageSubscriber::~ImageSubscriber() {
     disconnect();
+    if (zmq_context_) {
+        zmq_ctx_destroy(zmq_context_);
+        zmq_context_ = nullptr;
+    }
 }
 
 bool ImageSubscriber::connect(const Api2aConfig& config) {
-    zmq_context_ = zmq_ctx_new();
     if (!zmq_context_) {
-        Logger::instance().error("ImageSubscriber", "Failed to create ZMQ context");
-        return false;
+        zmq_context_ = zmq_ctx_new();
+        if (!zmq_context_) {
+            Logger::instance().error("ImageSubscriber", "Failed to create ZMQ context");
+            return false;
+        }
     }
 
     running_.store(true);
@@ -63,10 +69,6 @@ void ImageSubscriber::disconnect() {
         if (t.joinable()) t.join();
     }
     subscribe_threads_.clear();
-    if (zmq_context_) {
-        zmq_ctx_destroy(zmq_context_);
-        zmq_context_ = nullptr;
-    }
     Logger::instance().info("ImageSubscriber", "Disconnected");
 }
 

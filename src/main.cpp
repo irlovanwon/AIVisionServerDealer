@@ -94,8 +94,9 @@ static void http_file_server_thread(int port, const std::string& root_dir) {
 }
 
 static auto make_admin_handler(std::shared_ptr<ai_vision::CoreModule> core,
+                               std::shared_ptr<ai_vision::ImageSubscriber> subscriber,
                                const ai_vision::Config& config) {
-    return [&core, &config](const std::string& action,
+    return [core, subscriber, &config](const std::string& action,
                              const std::vector<ai_vision::AdminParameter>& params) -> ai_vision::Response {
         ai_vision::Logger::instance().info("Admin",
             "Action: " + action + " (" + std::to_string(params.size()) + " params)");
@@ -126,6 +127,17 @@ static auto make_admin_handler(std::shared_ptr<ai_vision::CoreModule> core,
             core->ack_results(count);
             return ai_vision::make_response(ai_vision::ResponseCode::Success,
                 "Acknowledged " + std::to_string(count) + " results");
+        } else if (action == "Reconnect") {
+            ai_vision::Logger::instance().info("Admin", "Reconnect requested -- scheduling async SUB reconnect");
+            std::thread([subscriber, &config]() {
+                ai_vision::Logger::instance().info("ImageSubscriber", "Async reconnect: disconnecting...");
+                subscriber->disconnect();
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                ai_vision::Logger::instance().info("ImageSubscriber", "Async reconnect: connecting...");
+                subscriber->connect(config.api2a);
+                ai_vision::Logger::instance().info("ImageSubscriber", "Async reconnect: done");
+            }).detach();
+            return ai_vision::make_response(ai_vision::ResponseCode::Success, "Reconnect scheduled");
         }
         return ai_vision::make_response(ai_vision::ResponseCode::Error, "Unknown action: " + action);
     };
@@ -194,7 +206,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    auto admin_handler = make_admin_handler(core, config);
+    auto admin_handler = make_admin_handler(core, subscriber, config);
 
     ai_vision::AdminServer admin_server(config.api1b);
     admin_server.set_handler(admin_handler);
