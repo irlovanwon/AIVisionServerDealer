@@ -18,6 +18,7 @@ Config ConfigManager::from_json(const nlohmann::json& j) {
     config.mode = j.value("mode", "Binary");
     config.jpeg_quality = j.value("jpeg_quality", 85);
     config.http_file_server_port = j.value("http_file_server_port", 8089);
+    config.ai_engine_http_url = j.value("ai_engine_http_url", "https://127.0.0.1:8000");
     config.log_level = j.value("log_level", "info");
 
     if (j.contains("api1a")) {
@@ -72,6 +73,7 @@ nlohmann::json ConfigManager::to_json(const Config& config) {
     j["mode"] = config.mode;
     j["jpeg_quality"] = config.jpeg_quality;
     j["http_file_server_port"] = config.http_file_server_port;
+    j["ai_engine_http_url"] = config.ai_engine_http_url;
     j["log_level"] = config.log_level;
 
     j["api1a"] = {
