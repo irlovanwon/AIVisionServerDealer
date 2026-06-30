@@ -10,6 +10,33 @@ KEY="$CERT_DIR/server.key"
 PID_FILE="$PROJECT_DIR/ai_vision_server_dealer.pid"
 LOG_FILE="$PROJECT_DIR/ai_vision_server_dealer.log"
 CONFIG_FILE="$PROJECT_DIR/config/default.json"
+APP_NAME="ai_vision_server_dealer"
+
+kill_all_instances() {
+    local pids
+    pids=$(pgrep -f "${APP_NAME}" 2>/dev/null)
+    if [ -n "$pids" ]; then
+        echo "[INFO] Stopping all AIVisionServerDealer instances: $pids"
+        for pid in $pids; do
+            kill -TERM "$pid" 2>/dev/null || true
+        done
+        local count=0
+        while pgrep -f "${APP_NAME}" > /dev/null 2>&1; do
+            sleep 0.5
+            count=$((count + 1))
+            if [ $count -ge 20 ]; then
+                echo "[INFO] Force-killing survivors..."
+                pids=$(pgrep -f "${APP_NAME}" 2>/dev/null)
+                for pid in $pids; do
+                    kill -9 "$pid" 2>/dev/null || true
+                done
+                break
+            fi
+        done
+        echo "[INFO] All AIVisionServerDealer instances stopped."
+    fi
+    rm -f "$PID_FILE"
+}
 
 build() {
     echo "[INFO] Building AIVisionServerDealer..."
@@ -35,15 +62,14 @@ generate_certs() {
 }
 
 start() {
+    # Kill any existing instances first (prevents duplicates from manual starts)
+    kill_all_instances
+    sleep 0.5
+
     if [ ! -f "$BIN" ]; then
         build
     fi
     generate_certs
-
-    if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
-        echo "[ERROR] AIVisionServerDealer is already running (PID $(cat $PID_FILE))"
-        exit 1
-    fi
 
     echo "[INFO] Starting AIVisionServerDealer"
     echo "  Config: $CONFIG_FILE"
@@ -64,23 +90,7 @@ start() {
 }
 
 stop() {
-    if [ ! -f "$PID_FILE" ]; then
-        echo "[WARN] PID file not found. Is AIVisionServerDealer running?"
-        exit 0
-    fi
-    PID=$(cat "$PID_FILE")
-    if kill -0 "$PID" 2>/dev/null; then
-        echo "[INFO] Stopping AIVisionServerDealer (PID $PID)..."
-        kill "$PID"
-        sleep 2
-        if kill -0 "$PID" 2>/dev/null; then
-            kill -9 "$PID"
-        fi
-        echo "[INFO] AIVisionServerDealer stopped"
-    else
-        echo "[WARN] Process $PID not running"
-    fi
-    rm -f "$PID_FILE"
+    kill_all_instances
 }
 
 status() {
