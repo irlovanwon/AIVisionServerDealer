@@ -15,7 +15,7 @@ AIVisionServerDealer is a C++17 module that bridges a **data server** and **AI c
 - **API2b** — HTTPS server for command get/set with the data server (same frame format as API1b admin)
 - **Internal `std::shared_ptr` dataflow** — no memory copy between threads
 - **ZMQ tcp/ipc selectable** per ZMQ module (API2a transport also selectable from the command API)
-- **JPEG encoding** applied at the API2 boundary for image data before transfer onward to the AI client
+- **JPEG encoding** (libjpeg-turbo, CPU) applied before API1 transfer — a separate SPSC thread encodes image data before sending to the AI engine; API2 receives raw data only
 
 See also: [API.md](API.md) | [frame.md](frame.md) | [config.md](config.md) | [parameter.md](parameter.md) | [folder_structure.md](folder_structure.md) | [server.md](server.md)
 
@@ -30,7 +30,7 @@ See also: [API.md](API.md) | [frame.md](frame.md) | [config.md](config.md) | [pa
 | Messaging | ZeroMQ (ZMQ) — DEALER/DEALER + SUB, IPC + TCP |
 | Command Protocol | HTTPS (TLS mandatory, OpenSSL) — used by both API1b (admin) and API2b (data server command get/set) |
 | Serialization | JSON (nlohmann-json for control/admin/command), ZMQ frames for image & result data |
-| Image Handling | OpenCV (incl. JPEG encode/decode) |
+| Image Handling | OpenCV (image I/O), **libjpeg-turbo** (CPU JPEG encoding via separate SPSC thread) |
 | Testing | Google Test (gtest) |
 | Config Format | JSON, `config/` directory |
 | Target Platform | Linux aarch64 (EDGE01/EDGE02), Linux x86_64 |
@@ -65,8 +65,9 @@ See also: [API.md](API.md) | [frame.md](frame.md) | [config.md](config.md) | [pa
 ### End-to-End Data Path
 
 ```
-Data Server --(API2a SUB, ZMQ SUB, JPEG-encoded image data / sensor data)--> Core
-Core        --(API1a, ZMQ DEALER, detection request)--> AI Client
+Data Server --(API2a SUB, ZMQ SUB, raw image data / sensor data)--> Core
+Core        --(JPEG encode via SPSC thread, libjpeg-turbo CPU)--> Core
+Core        --(API1a, ZMQ DEALER, JPEG-encoded detection request)--> AI Client
                   Binary mode : raw image data
                   File mode   : local file URI (path)
                   Http mode   : HTTP/HTTPS URI (URL)
@@ -160,8 +161,8 @@ See [API.md §API2](API.md#api-2--dealer--data-server) and [frame.md §API2](fra
 
 | Boundary | Rule |
 |----------|------|
-| **API1 (Dealer ↔ AI Client)** | The AI client receives **raw data only**. In `Binary` mode, binary image data is transferred directly via ZMQ multipart messages. |
-| **API2 (Data Server ↔ Dealer)** | **JPEG encoding** is applied to image data before transfer onward (toward the AI client). The Dealer ingests JPEG-encoded image frames from the data server. Non-image sensor data (IMU, magnetometer, barometer, etc.) is transferred in its native serialized form. |
+| **API2 (Data Server ↔ Dealer)** | The Dealer receives **raw data only** from the data server. No encoding is applied at this boundary. Non-image sensor data (IMU, magnetometer, barometer, etc.) is transferred in its native serialized form. |
+| **API1 (Dealer ↔ AI Client)** | **JPEG encoding** (libjpeg-turbo, CPU) is applied to image data before transfer to the AI engine. A **separate SPSC thread** handles the encoding job to avoid blocking the ingest pipeline. In `Binary` mode, the JPEG-encoded bytes are sent directly via ZMQ multipart messages. |
 
 ---
 
@@ -209,7 +210,7 @@ See [parameter.md](parameter.md) for the full parameter list.
 | Decision | Rationale |
 |----------|-----------|
 | 3-mode data transfer system (`File` / `Http` / `Binary`) | Lets the AI client receive data the way it prefers — raw binary by default (lowest latency, no disk/network dependency), or a URI reference when the AI client has disk/web access. Replaces the old single "Stream" mode. |
-| JPEG encoding at the API2 boundary | Compresses image data before transfer onward to the AI client, reducing ZMQ bandwidth on the ingest path. |
+| JPEG encoding before API1 transfer | Compresses image data before sending to the AI engine via API1, reducing ZMQ bandwidth. Applied by a **separate SPSC thread** using **libjpeg-turbo** CPU encoding to avoid blocking the ingest pipeline. API2 receives raw data only. |
 | ZMQ DEALER/DEALER for AI detection | Fully asynchronous — Dealer and AI Client operate independently; matches the request/response dealer semantics. See [Coding/ZMQ.md](../../Coding/ZMQ.md) DEALER/DEALER pattern |
 | ZMQ SUB for data ingest | Data server publishes, Dealer subscribes — supports the expanded data-type set (image, depth, point cloud, IMU, magnetometer, barometer) with extension to stereo (multiple images) |
 | HTTPS for both API1b (admin) and API2b (data server command get/set) | Secure, request/response command channels consistent with project standards; API2b reuses the API1b admin frame format |
@@ -260,10 +261,11 @@ The C++ `ResponseCode` enum is used internally by the admin/command handler logi
 | C12 | Ingest pipeline uses a lock-free SPSC ring buffer with drop-newest policy (atomics, `alignas(64)` anti-false-sharing) |
 | C13 | ZMQ send paths use zero-copy (`zmq_msg_init_data`) to avoid data duplication at API boundaries |
 | C14 | Pipeline supports backpressure via `processing_paused_` atomic: when pending unacknowledged results reach a limit, processing auto-pauses; the data server acknowledges via the command interface |
-| C15 | API2 applies JPEG encoding to image data before transfer onward to the AI client |
+| C15 | API1 applies JPEG encoding (libjpeg-turbo, CPU) to image data before transfer to the AI engine. API2 receives raw data only. |
 | C16 | Default data transfer Mode is `Binary` |
 | C17 | On startup, the Dealer ensures the AI engine is started (sends `Action: "Start"` via HTTPS). The AI engine is never stopped by the Dealer — even when tasks are paused or stopped. |
 | C18 | On startup, the Dealer publishes a `ServiceRestart` notification on the result PUB channel so all connected modules can reset their connections. |
+| C19 | A separate SPSC thread handles JPEG encoding (libjpeg-turbo, CPU) between API2 ingest and API1 send, ensuring the encoding job does not block the ingest pipeline. |
 
 ---
 
